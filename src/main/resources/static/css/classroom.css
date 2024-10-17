@@ -1,0 +1,255 @@
+.container {
+    width: 100%;
+    display: flex;
+}
+
+.container_sidebar {
+    width: 250px;
+    height: calc(100vh - 60px);
+    background: white;
+    border-right: 1px solid #aaa;
+    padding: 20px 10px;
+}
+
+.room_info {
+    margin-bottom: 10px;
+}
+
+.room_info_name {
+    font-weight: bold;
+}
+
+.container_content {
+    width: calc(100vw - 250px);
+}
+
+.container_sidebar_option {
+    margin-top: 10px;
+}
+
+.container_sidebar_item {
+    text-decoration: none;
+    color: black;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+.container_sidebar_item.active {
+    background-color: #ff0033;
+    color: white;
+}
+
+.container_sidebar_item.active:hover {
+    background-color: #ff0033;
+    color: white;
+}
+
+.container_sidebar_item:hover {
+    background-color: #f1f1f1;
+}
+
+.container_content_title {
+    padding: 20px;
+    font-weight: bold;
+}
+
+.list_member_header,
+.member {
+    width: 100%;
+    background-color: #e0e0e0;
+    display: grid;
+    grid-template-columns: 1fr 2fr 2fr;
+    font-weight: bold;
+    padding: 10px 20px;
+}
+
+.list_member_header_item {
+    text-align: center;
+}
+
+.member {
+    padding: 20px;
+    background-color: transparent;
+    position: relative;
+}
+
+.member:hover {
+    background-color: rgb(96, 183, 241, 0.1);
+    cursor: pointer;
+}
+
+.delete_room {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 20px;
+    cursor: pointer;
+    color: black;
+}
+
+.delete_room:hover {
+    color: red;
+}
+
+.btn_add_homework {
+    color: black;
+    text-decoration: none;
+    background-color: #ff0033;
+    color: white;
+    padding: 10px 30px;
+    margin-left: 20px;
+    border-radius: 10px;
+}
+
+
+
+.quiz_item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    cursor: pointer;
+}
+
+
+.quiz_item.active {
+    background-color: rgb(255, 196, 196);
+}
+
+.quiz_item:hover {
+    background-color: #f5f4f4;
+    transition: 0.1s;
+}
+
+.quiz_item img {
+    width: 30px;
+}
+
+.quiz_item div{
+    flex: 1;
+}
+
+.list_quiz_container {
+    display: flex;
+}
+
+.quiz_info {
+    width: 300px;
+    padding: 10px;
+    border-left: 1px solid #aaa;
+    height: calc(100vh - 60px - 60px);
+}
+
+.list_quiz {
+    flex: 1;
+    width: 100%;
+}
+
+
+.quiz_info_title {
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.quiz_info_maxAttempts,
+.quiz_info_question,
+.quiz_info_quiz_results {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+}
+
+.quiz_info_question,
+.quiz_info_quiz_results {
+    margin-top: 10px;
+}
+
+
+.quiz_info .line {
+    margin: 10px 0px;
+}
+
+.edit_quiz,
+.learn_quiz {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    border-radius: 10px;
+    color: white;
+    background-color: #ff0033;
+    text-align: center;
+    text-decoration: none;
+}
+
+.quiz_student_description{
+    margin-top: 10px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.line_point{
+    position: relative;
+    max-width: 60%;
+    height: 3px;
+    background-color: #aaa;
+}
+
+.line_point .line{
+    width: 0px;
+    height: 100%;
+    background-color: #ff0033;
+    top: 0;
+    left: 0;
+}
+
+.result_quiz{
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    border-radius: 10px;
+    color: #ff0033;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.result_quiz:hover{
+    background-color: #f1f1f1;
+}
+
+.hidden{
+    display: none;
+}
+
+.teacher_info_container{
+    margin: 10px 0px;
+}
+
+.teacher_info{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.teacher_info img{
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #ccc;
+}
+
+.teacher_info .name{
+    font-weight: bold;
+    font-size: 16px;
+    max-width: 60%;
+    overflow-wrap: break-word;
+}

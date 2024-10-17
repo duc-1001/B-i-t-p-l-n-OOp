@@ -1,0 +1,148 @@
+.container{
+    width: 100%;
+    display: flex;
+    gap: 10px;
+}
+
+.options{
+    width: 400px;
+    height: 100vh;
+    background: white;
+    position: fixed;
+    top: 0;
+    right: 0;
+}
+
+.question_text{
+    margin: 10px 0;
+    font-size: 18px;
+}
+
+.list_question{
+    width: calc(100% - 400px );
+    background-color: #f1f1f1;
+    padding: 10px;
+    min-height: 1000px;
+}
+
+.quiz_time{
+    padding: 20px 10px;
+    background-color: #f32e3b;
+    color: white;
+    font-weight: bold;
+}
+
+.time{
+    margin-top: 5px;
+}
+
+.quiz_title_container{
+    margin-top: 30px;
+    padding: 0 20px;
+}
+
+.quiz_title{
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    box-shadow: 0 0 2px #aaa;
+    font-size: 14px;
+}
+
+.quiz_title img{
+    width: 30px;
+}
+
+.list_question{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.question{
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.answers{
+    display: flex;
+    flex-direction: column;
+    gap: 10px; 
+}
+
+.answer label{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #dad9d9;
+    cursor: pointer;
+}
+
+.answer label div:first-child{
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    background-color: #e7e7e7;
+}
+
+.answer label.active div:first-child{
+    background-color: #ff0033;
+    color: white;
+}
+
+.answer label.active{
+    border-color: #ff0033;
+}
+
+.options_btn{
+    width: 100%;
+    position: absolute;
+    left: 0;
+    bottom: 30px;
+    display: flex;
+    padding: 0 10px;
+    gap: 20px;
+}
+
+.options_btn button{
+    flex: 1;
+    padding: 13px;
+    border: none;
+    outline: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.submit{
+    background-color: #f32e3b;
+    color: white;
+}
+
+.list{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 20px;
+}
+
+.item{
+    width: 45px;
+    height: 45px;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

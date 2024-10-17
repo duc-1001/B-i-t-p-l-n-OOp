@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Project Java</title>
+    <link th:href="@{/css/styles.css}" rel="stylesheet" />
+    <link th:href="@{/css/header.css}" rel="stylesheet" />
+    <link th:href="@{/css/formCreateNewClass.css}" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <div th:replace="fragments/header :: header"></div>
+    <div class="container-form">
+        <form class="form" th:action="@{/classroom/create}" th:object="${classroom}" method="post">
+            <div class="form_title">Create New Classroom</div>
+            <div class="form_ground">
+                <label>Tên lớp học:</label>
+                <input type="text" th:field="*{name}" placeholder="Ví dụ: Lớp thầy Đức 2024..." />
+                <div class="error-message">
+                    <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                </div>
+            </div>
+            <div class="form_ground">
+                <label>Tên môn học:</label>
+                <input type="text" th:field="*{subjects}" placeholder="Ví dụ: Lập trình hướng đối tượng..." />
+                <div class="error-message">
+                    <div th:if="${#fields.hasErrors('subjects')}" th:errors="*{subjects}"></div>
+                </div>
+            </div>
+            <div class="form_ground">
+                <input type="email" hidden th:value="${currentUser.id}" name="teacherId" placeholder="Enter teacher's email"
+                    readonly />
+            </div>
+            <button class="btn-submit" type="submit">Create Classroom</button>
+        </form>
+    </div>
+</body>
+
+</html>

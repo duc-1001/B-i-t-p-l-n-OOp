@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Java</title>
+    <link th:href="@{/css/styles.css}" rel="stylesheet" />
+    <link th:href="@{/css/register.css}" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="container">
+        <form class="form" th:action="@{/login}" method="post">
+            <div class="form_title">LOGN IN</div>
+            <div class="form_ground">
+                <input type="email" placeholder="Email" id="email" name="email" />
+            </div>
+            <div class="form_ground">
+                <input type="password"  placeholder="Password" id="password" name="password" />
+            </div>
+            <div class="error-message">
+                <p th:if="${param.error}">Invalid email or password. Please try again.</p>
+            </div>
+            <button class="btn-submit" type="submit">SIGN IN</button>
+        </form>
+        <div class="form_description">
+            <div class="form_description_title">
+                Hello, Friend!
+            </div>
+            <div>
+                Enter yuor personal details and start journey with us
+            </div>
+            <a href="../register">SIGN UP</a>
+        </div>
+    </div>
+    </div>
+</body>
+
+</html>

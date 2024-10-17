@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Java</title>
+    <link th:href="@{/css/styles.css}" rel="stylesheet" />
+    <link th:href="@{/css/header.css}" rel="stylesheet" />
+    <link th:href="@{/css/createHomework.css}" rel="stylesheet" />
+</head>
+
+<body>
+    <div th:replace="fragments/header :: header"></div>
+    <form class="form_create_homework" th:action="@{../../{id}/homework/add(id=${id})}" method="post">
+        <label class="title_quiz" for="title">Tiêu đề bài quiz:</label>
+        <input class="input_title_quiz" type="text" id="title" name="title" placeholder="Nhập tiêu đề bài quiz"
+            required>
+        <br>
+        <!-- Số lần làm bài -->
+        <label class="maxAttempts_quiz" for="maxAttempts">Số lần làm bài tối đa:</label>
+        <input class="input_maxAttempts_quiz" type="number" id="maxAttempts" name="maxAttempts" min="1" max="20"
+            placeholder="Số lần làm bài tối đa" required>
+        <br>
+        <!--Thời gian làm-->
+        <input type="checkbox" id="examDurationCheckBox" name="examDurationCheckBox" hidden>
+        <div class="examDuration">
+            <div class="examDuration_quiz" for="examDurationCheckBox">Thời gian làm bài:</div>
+            <label for="examDurationCheckBox">
+                <div class="btn_examDuration">
+                    <div class="point">
+
+                    </div>
+                </div>
+            </label>
+        </div>
+        <div class="examDuration_input">
+            <input class="input_examDuration_quiz" type="number" id="examDuration" name="examDuration" min="1" max="300"
+            placeholder="Thời gian làm bài" required/>
+            <div class="examDuration_input_option">
+                <div class="time_item" data-value="30">
+                    30 phút                    
+                </div>
+                <div class="time_item" data-value="45">
+                    45 phút
+                </div>
+                <div class="time_item" data-value="60">
+                    60 phút
+                </div>
+            </div>
+        </div>
+        <!--CHo xem đáp án-->
+        <input hidden class="input_showAnswer_quiz" type="checkbox" id="showAnswer" name="showAnswer"/>
+        <div class="showAnswer">
+            <div class="showAnswer_quiz" for="showAnswerCheckBox">Cho xem đáp án:</div>
+            <label for="showAnswer">
+                <div class="btn_showAnswer">
+                    <div class="point">
+
+                    </div>
+                </div>
+            </label>
+        </div>
+        <!-- Loại tính điểm -->
+        <label class="scoreType_quiz" for="scoreType">Chọn loại tính điểm:</label>
+        <select id="scoreType" name="scoreType">
+            <option value="FIRST_ATTEMPT">Lần đầu tiên</option>
+            <option value="LAST_ATTEMPT">Lần cuối</option>
+            <option value="HIGHEST_SCORE">Điểm cao nhất</option>
+        </select>
+        <br>
+        <!-- Câu hỏi -->
+        <div id="question-container">
+            <div class="question" data-index="0">
+                <h3>Câu hỏi 1:</h3>
+                <label for="questionText0">Nội dung câu hỏi:</label>
+                <textarea class="content_question" type="text" name="questions[0].questionText"
+                    placeholder="Nhập câu hỏi" required></textarea>
+                <br>
+
+                <div>
+                    A.<input class="option" type="text" name="questions[0].options[0]" placeholder="Lựa chọn 1"
+                        required>
+                </div>
+                <div>
+                    B.<input class="option" type="text" name="questions[0].options[1]" placeholder="Lựa chọn 2"
+                        required>
+                </div>
+                <div>
+                    C.<input class="option" type="text" name="questions[0].options[2]" placeholder="Lựa chọn 3"
+                        required>
+                </div>
+                <div>
+                    D.<input class="option" type="text" name="questions[0].options[3]" placeholder="Lựa chọn 4"
+                        required>
+                </div>
+                <br>
+
+                <select class="question_answer" name="questions[0].correctAnswer" required>
+                    <option value="" disabled selected>Chọn đáp án</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Nút thêm câu hỏi -->
+        <button type="button" id="add-question-btn">Thêm câu hỏi</button>
+
+        <br><br>
+
+        <button class="create_homework" type="submit">Tạo bài quiz</button>
+    </form>
+
+    <script>
+
+        document.querySelectorAll(".time_item").forEach(e=>{
+            e.addEventListener("click",function(){
+                console.log(this.getAttribute('data-value'));
+                document.querySelector('#examDuration').value = JSON.parse(this.getAttribute('data-value'))
+            })
+        })
+
+        let questionIndex = 1;
+
+        document.getElementById('add-question-btn').addEventListener('click', function () {
+            addQuestion();
+        });
+
+        function addQuestion() {
+            const questionContainer = document.getElementById('question-container');
+            const newQuestion = document.createElement('div');
+            newQuestion.classList.add('question');
+            newQuestion.setAttribute('data-index', questionIndex);
+
+            newQuestion.innerHTML = `
+        <h3>Câu hỏi ${questionIndex + 1}:</h3>
+        <label for="questionText${questionIndex}">Nội dung câu hỏi:</label>
+        <textarea class="content_question" type="text" name="questions[${questionIndex}].questionText" placeholder="Nhập câu hỏi" required></textarea>
+        <br>
+
+        <label for="options${questionIndex}">Lựa chọn:</label>
+        <div>
+            A.<input class="option" type="text" name="questions[${questionIndex}].options[0]" placeholder="Lựa chọn 1" required>
+        </div>
+        <div>
+            B.<input class="option" type="text" name="questions[${questionIndex}].options[1]" placeholder="Lựa chọn 2" required>
+        </div>
+        <div>
+            C.<input class="option" type="text" name="questions[${questionIndex}].options[2]" placeholder="Lựa chọn 3" required>
+        </div>
+        <div>
+            D.<input class="option" type="text" name="questions[${questionIndex}].options[3]" placeholder="Lựa chọn 4" required>
+        </div>
+        <br>
+
+        <select class="question_answer" name="questions[${questionIndex}].correctAnswer" required>
+            <option value="" disabled selected>Chọn đáp án</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+        </select>
+
+        <!-- Nút xóa câu hỏi -->
+        <button type="button" class="delete-question-btn">Xóa câu hỏi</button>
+    `;
+
+            questionContainer.appendChild(newQuestion);
+            addDeleteFunctionality(newQuestion);
+
+            questionIndex++;
+        }
+
+        function addDeleteFunctionality(questionElement) {
+            const deleteBtn = questionElement.querySelector('.delete-question-btn');
+            deleteBtn.addEventListener('click', function () {
+                questionElement.remove();
+                updateQuestionIndexes();
+            });
+        }
+
+        function updateQuestionIndexes() {
+            const questions = document.querySelectorAll('.question');
+            questions.forEach((question, index) => {
+                question.setAttribute('data-index', index);
+                question.querySelector('h3').innerText = `Câu hỏi ${index + 1}:`;
+                question.querySelector('textarea').name = `questions[${index}].questionText`;
+
+                const options = question.querySelectorAll('.option');
+                options.forEach((option, optIndex) => {
+                    option.name = `questions[${index}].options[${optIndex}]`;
+                });
+
+                question.querySelector('.question_answer').name = `questions[${index}].correctAnswer`;
+            });
+
+            questionIndex = questions.length; // Cập nhật questionIndex
+        }
+        document.querySelectorAll('.question').forEach(addDeleteFunctionality);
+
+    </script>
+
+</body>
+
+</html>

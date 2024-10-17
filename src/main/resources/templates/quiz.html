@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Project Java</title>
+    <link th:href="@{/css/styles.css}" rel="stylesheet" />
+    <link th:href="@{/css/quiz.css}" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+
+<body>
+    <form method="post" th:action="@{{id}(id=${quiz.id})}" class="container">
+        <input name="quizResultId" hidden th:value="${quizResultId}" />
+        <input type="hidden" name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <div class="list_question">
+            <div th:each="question,questionIndex : ${questions}" class="question">
+                <h3 th:text="'Câu '+${questionIndex.count}+' :'"></h3>
+                <div class="question_text" th:text="${question.questionText}"> </div>
+                <div class="answers">
+                    <div class="answer">
+                        <label th:classappend="${quizResult.answers[questionIndex.index]}=='A' ? 'active' : ''"
+                            th:for="'answer_'+${questionIndex.index}+'_A'">
+                            <div>A</div>
+                            <div th:text="${question.options[0]}"></div>
+                        </label>
+                        <input hidden th:checked="${quizResult.answers[questionIndex.index]}=='A'"
+                            th:id="'answer_'+${questionIndex.index}+'_A'" type="radio" th:name="${question.id}"
+                            th:value="A" />
+                    </div>
+                    <div class="answer">
+                        <label th:classappend="${quizResult.answers[questionIndex.index]}=='B' ? 'active' : ''"
+                            th:for="'answer_'+${questionIndex.index}+'_B'">
+                            <div>B</div>
+                            <div th:text="${question.options[1]}"></div>
+                        </label>
+                        <input hidden th:checked="${quizResult.answers[questionIndex.index]}=='B'"
+                            th:id="'answer_'+${questionIndex.index}+'_B'" type="radio" th:name="${question.id}"
+                            th:value="B" />
+                    </div>
+                    <div class="answer">
+                        <label th:classappend="${quizResult.answers[questionIndex.index]}=='C' ? 'active' : ''"
+                            th:for="'answer_'+${questionIndex.index}+'_C'">
+                            <div>C</div>
+                            <div th:text="${question.options[2]}"></div>
+                        </label>
+                        <input hidden th:checked="${quizResult.answers[questionIndex.index]}=='C'"
+                            th:id="'answer_'+${questionIndex.index}+'_C'" type="radio" th:name="${question.id}"
+                            th:value="C" />
+                    </div>
+                    <div class="answer">
+                        <label th:classappend="${quizResult.answers[questionIndex.index]}=='D' ? 'active' : ''"
+                            th:for="'answer_'+${questionIndex.index}+'_D'">
+                            <div>D</div>
+                            <div th:text="${question.options[3]}"></div>
+                        </label>
+                        <input hidden th:checked="${quizResult.answers[questionIndex.index]}=='D'"
+                            th:id="'answer_'+${questionIndex.index}+'_D'" type="radio" th:name="${question.id}"
+                            th:value="D" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="options">
+            <div class="quiz_time">
+                <div>
+                    Thời gian làm bài
+                </div>
+                <div class="time">
+
+                </div>
+            </div>
+            <div class="quiz_title_container">
+                <div class="quiz_title">
+                    <img src="https://shub.edu.vn/images/icons/doc_blue.png" alt="quiz_img" />
+                    <b th:text="${quiz.title}">Quiz page</b>
+                </div>
+                <div class="list">
+                    <div th:each="question,questionIndex : ${questions}" class="item">
+                        <div th:text="${quizResult.answers[questionIndex.index]} != '' ? ${questionIndex.count} +': '+${quizResult.answers[questionIndex.index]}: ${questionIndex.count}"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="options_btn">
+                <button class="back" type="button">Rời khỏi</button>
+                <button class="submit" onclick="return confirm('Bạn có muốn nộp bài không?')" type="submit">Nộp
+                    bài</button>
+            </div>
+        </div>
+    </form>
+</body>
+
+<script>
+    let totalSeconds = [[${quizResult.getAttemptTime()}]];
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const listAnswer = document.querySelectorAll(".answer label");
+        const items = document.querySelectorAll(".item");
+        const quizId = window.location.pathname.split('/')[2];
+
+
+        listAnswer.forEach((label, index) => {
+            label.addEventListener('click', function () {
+                const answers = this.closest('.answers');
+                answers.querySelectorAll(".answer label").forEach((e) => {
+                    e.classList.remove("active");
+                });
+                this.classList.add("active");
+                const answerValue = this.parentElement.querySelector('input').value;
+                const questionIndex = Math.floor(index / 4)
+                const item = items[questionIndex];
+                if (item) {
+                    item.textContent = `${questionIndex + 1}: ${answerValue}`;
+                }
+            });
+        });
+        function displayTime(totalSeconds) {
+            const timeDiv = document.querySelector('.time');
+            const hours = Math.floor(totalSeconds / 3600)
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            if (hours > 0) {
+                timeDiv.textContent = `${hours} giờ ${minutes} phút`;
+            }
+            else if (minutes > 0) {
+                timeDiv.textContent = `${minutes} phút ${seconds}s`;
+            }
+            else {
+                timeDiv.textContent = `${seconds}s`;
+            }
+        }
+
+        function throttle(func, limit) {
+            let inThrottle;
+            return function (...args) {
+                if (!inThrottle) {
+                    func.apply(this, args);
+                    inThrottle = true;
+                    setTimeout(() => inThrottle = false, limit);
+                }
+            };
+        }
+
+        async function sendData(totalSeconds) {
+            if (quizId) {
+                const form = document.querySelector(".container");
+                const formData = new FormData(form);
+                const data = {};
+
+                formData.forEach((value, key) => {
+                    data[key] = value;
+                });
+
+                data['timeElapsed'] = totalSeconds;
+
+                const response = await fetch(`${quizId}/save`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('input[name="${_csrf.parameterName}"]').value // CSRF token nếu cần
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                if (!response.ok) {
+                    console.error('Lỗi khi gửi dữ liệu:', response.statusText);
+                }
+            }
+        }
+
+        const throttledSendData = throttle(sendData, 1000); 
+
+        displayTime(totalSeconds);
+        const interval = setInterval(() => {
+            totalSeconds++;
+            displayTime(totalSeconds);
+            throttledSendData(totalSeconds);
+            if (totalSeconds < 0) {
+                clearInterval(interval);
+            }
+        }, 1000);
+
+        window.addEventListener('beforeunload', async (event) => {
+            if (quizId) {
+                await sendData(totalSeconds);
+                event.preventDefault(); 
+                event.returnValue = '';
+            }
+        });
+
+        document.querySelector(".back").addEventListener("click", async () => {
+            if (confirm("Bạn có muốn rời khỏi trang này không?")) {
+                await sendData(totalSeconds);
+                window.history.back();
+            }
+        });
+    })
+</script>
+
+</html>

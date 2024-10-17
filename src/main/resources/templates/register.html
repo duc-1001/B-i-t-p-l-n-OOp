@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Java</title>
+    <link th:href="@{/css/styles.css}" rel="stylesheet" />
+    <link th:href="@{/css/register.css}" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="container">
+        <div class="form_description">
+            <div class="form_description_title">
+                Welcome Back!
+            </div>
+            <div>
+                To keep connected with us please login with your personal info
+            </div>
+            <a href="../login">SIGN IN</a>
+        </div>
+        <form class="form" th:action="@{/register}" th:object="${user}" method="post">
+            <div class="form_title">Create Account</div>
+            <div class="form_ground">
+                <input type="text" th:field="*{username}" placeholder="Username" />
+                <div class="error-message">
+                    <div th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+                </div>
+            </div>
+            <div class="form_ground">
+                <input type="email" th:field="*{email}" placeholder="Email" />
+                <div class="error-message">
+                    <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                </div>
+            </div>
+            <div class="form_ground">
+                <input type="password" th:field="*{password}" placeholder="Password" />
+                <div class="error-message">
+                    <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                </div>
+            </div>
+            <div class="form_ground">
+                <input type="password" th:field="*{confirmPassword}" placeholder="Confirm password" />
+                <div class="error-message">
+                    <div th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></div>
+                </div>
+            </div>
+            <div class="form_ground">
+                <label for="role">Chức vụ:</label>
+                <select id="role" th:field="*{role}">
+                    <option value="teacher">Teacher</option>
+                    <option value="student">Student</option>
+                </select>
+            </div>
+            <button class="btn-submit" type="submit">SIGN UP</button>
+        </form>
+    </div>
+</body>
+
+</html>

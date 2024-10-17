@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Project Java</title>
+    <link th:href="@{/css/styles.css}" rel="stylesheet" />
+    <link th:href="@{/css/detalQuiz.css}" rel="stylesheet" />
+    <link th:href="@{/css/header.css}" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+
+<body>
+    <div th:replace="fragments/header :: header"></div>
+    <div class="title">
+        <a th:href="@{../../classroom/{id}/homework/list(id=${classroom.id})}">Bài tập</a>
+        <i class="fa-solid fa-caret-right"></i>
+        <div th:text="${quiz.title}"></div>
+    </div>
+    <div class="container">
+        <div class="list_question">
+            <div th:each="question,questionIndex : ${questions}" class="question">
+                <h3 th:text="'Câu '+${questionIndex.count}+' :'"></h3>
+                <div class="question_text" th:text="${question.questionText}"> </div>
+                <div class="answers">
+                    <div class="answer">
+                        <label th:classappend="${answers[questionIndex.index]}=='A' ? 'active' : ''"
+                            th:for="'answer_'+${questionIndex.index}+'_A'">
+                            <div>A</div>
+                            <div th:text="${question.options[0]}"></div>
+                        </label>
+                        <input hidden th:id="'answer_'+${questionIndex.index}+'_A'" type="radio"
+                            th:name="${question.id}" th:value="A" />
+                    </div>
+                    <div class="answer">
+                        <label th:classappend="${answers[questionIndex.index]}=='B' ? 'active' : ''"
+                            th:for="'answer_'+${questionIndex.index}+'_B'">
+                            <div>B</div>
+                            <div th:text="${question.options[1]}"></div>
+                        </label>
+                        <input hidden th:id="'answer_'+${questionIndex.index}+'_B'" type="radio"
+                            th:name="${question.id}" th:value="B" />
+                    </div>
+                    <div class="answer">
+                        <label th:classappend="${answers[questionIndex.index]}=='C' ? 'active' : ''"
+                            th:for="'answer_'+${questionIndex.index}+'_C'">
+                            <div>C</div>
+                            <div th:text="${question.options[2]}"></div>
+                        </label>
+                        <input hidden th:id="'answer_'+${questionIndex.index}+'_C'" type="radio"
+                            th:name="${question.id}" th:value="C" />
+                    </div>
+                    <div class="answer">
+                        <label th:classappend="${answers[questionIndex.index]}=='D' ? 'active' : ''"
+                            th:for="'answer_'+${questionIndex.index}+'_D'">
+                            <div>D</div>
+                            <div th:text="${question.options[3]}"></div>
+                        </label>
+                        <input hidden th:id="'answer_'+${questionIndex.index}+'_D'" type="radio"
+                            th:name="${question.id}" th:value="D" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="options">
+            <div class="question_answer">
+                <input hidden id="show_answer_link" type="checkbox" />
+                <label for="show_answer_link" class="question_answer_index">
+                    <div for="show_answer_link" th:text="'Lần làm bài ' +${q}"></div>
+                    <i id="icon" class="fa-solid fa-caret-down"></i>
+                </label>
+                <div class="answer_options_link">
+                    <div th:each="quizResult,quizResultIndex :${quizResults}">
+                        <a th:classappend="${quizResultIndex.count}==${q} ? 'active':'' "
+                            th:href="@{../{id}/detal(id=${quiz.id},q=${quizResultIndex.count})}" class="answer_link"
+                            th:text="'Lần làm bài '+${quizResultIndex.count}">Lần 1</a>
+                    </div>
+                </div>
+            </div>
+            <div class="quiz_info">
+                <div class="quiz_info_correct_answer_count" th:with="index=${q}"
+                    th:text="${quizResults[index-1].correctAnswersCount} + ' / ' + ${questions.size()}"></div>
+                <div class="quiz_info_description">
+                    <div class="quiz_info_time">
+                        <div>Thời gian</div>
+                        <div th:with="index=${q}" th:attr="time = ${quizResults[index-1].attemptTime}"
+                            th:text="${quizResults[index-1].attemptTime}">12 giây</div>
+                    </div>
+                    <div class="quiz_info_correct_answer">
+                        <div class="first">
+                            <i class="fa-solid fa-circle correct"></i>
+                            <div>
+                                Số câu đúng
+                            </div>
+                        </div>
+                        <div class="end" th:with="index=${q}" th:text="${quizResults[index-1].correctAnswersCount}">12
+                            giây</div>
+                    </div>
+                    <div class="quiz_info_wrong_answer">
+                        <div class="first">
+                            <i class="fa-solid fa-circle wrong"></i>
+                            <div>
+                                Số câu sai
+                            </div>
+                        </div>
+                        <div class="end" th:with="index=${q}" th:text="${quizResults[index-1].wrongAnswersCount}">12
+                            giây</div>
+                    </div>
+                    <div class="quiz_info_unanswered_answer">
+                        <div class="first">
+                            <i class="fa-solid fa-circle unanswered"></i>
+                            <div>
+                                Chưa làm
+                            </div>
+                        </div>
+                        <div class="end" th:with="index=${q}" th:text="${quizResults[index-1].unansweredCount}">12 giây
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="quiz_answer_sheet">
+                <b>Phiếu bài làm</b>
+                <table>
+                    <tr>
+                        <th></th>
+                        <th class="th_1">Câu</th>
+                        <th class="th_2">Chọn</th>
+                        <th class="th_3">Đáp án đúng</th>
+                    </tr>
+                    <tr  th:each="answer,answerIndex : ${answers}">
+                        <td th:if="${quiz.showAnswer} == true ">
+                            <i th:classappend="${answer}==${correctAnswers[answerIndex.index]} ? 'correct':'wrong' " class="fa-solid fa-circle"></i>
+                        </td>
+                        <td th:if="${quiz.showAnswer} == false">
+                            <i th:classappend="${answer}=='' ? 'unanswered':'sheet' " class="fa-solid fa-circle"></i>
+                        </td>
+                        <td class="td_1">
+                            <div th:text="${answerIndex.count}"></div>
+                        </td>
+                        <td class="td_2" th:text="${answer} != '' ? ${answer} : '-'"></td>
+                        <td class="td_3" th:text="${quiz.showAnswer} == true ? ${correctAnswers[answerIndex.index]} :'-'" >-</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+</body>
+
+<script>
+    const showTime = document.querySelector('div[time]')
+    const totalSeconds = JSON.parse(showTime.getAttribute('time'))
+
+    function displayTime(totalSeconds) {
+        const timeDiv = document.querySelector('.time');
+        const hours = Math.floor(totalSeconds / 3600)
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        if (hours > 0) {
+            showTime.textContent = `${hours} giờ ${minutes} phút`;
+        }
+        else if (minutes > 0) {
+            showTime.textContent = `${minutes} phút ${seconds}s`;
+        }
+        else {
+            showTime.textContent = `${seconds}s`;
+        }
+    }
+    displayTime(totalSeconds)
+</script>
+
+</html>

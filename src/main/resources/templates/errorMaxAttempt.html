@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link th:href="@{/css/error.css}" rel="stylesheet" />
+    <link th:href="@{/css/style.css}" rel="stylesheet" />
+</head>
+<body>
+    <div class="container_error">
+        <div class="depcription">
+            <div>
+                Có lỗi khi tải dữ liệu: 
+            </div> 
+            <div th:text="${errorText}" class="depcription_content">
+                Đã quá số lần làm bài cho phép
+            </div>
+        </div>
+        <div class="options">
+            <a class="go_back_home" href="/">Về trang chủ</a>
+        </div>
+    </div>
+</body>
+</html>

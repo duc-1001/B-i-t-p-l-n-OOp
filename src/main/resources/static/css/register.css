@@ -1,0 +1,152 @@
+body {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container {
+    box-shadow: 0 0 10px #aaa;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+}
+
+.form_description {
+    width: 500px;
+    height: 643px;
+    padding: 50px;
+    color: white;
+    text-align: center;
+    background-color: #ff0033;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.form_description_title {
+    font-size: 30px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.form_description a {
+    display: block;
+    margin: 50px auto;
+    width: 200px;
+    height: 40px;
+    border-radius: 40px;
+    font-weight: bold;
+    color: white;
+    border: 1px solid white;
+    outline: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form {
+    width: 500px;
+    padding: 50px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.form_title {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.form_ground {
+    width: 100%;
+    margin-top: 10px;
+    text-align: start;
+}
+
+.form_ground input {
+    width: 100%;
+    padding: 10px 15px;
+    outline: none;
+    border: 2px solid transparent;
+    background-color: #e0e0e0;
+    margin-top: 20px;
+    border-radius: 4px;
+}
+
+.form_ground input.input_error {
+    box-shadow: 0 0 10px 2px rgb(255, 0, 0);
+
+}
+
+.form_ground input:focus {
+    box-shadow: 0 0 10px 2px rgb(0, 132, 255);
+}
+
+.form_ground label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #333;
+    font-size: 1.1rem;
+    font-family: 'Arial', sans-serif;
+}
+
+.form_ground select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    color: #333;
+    background-color: #fff;
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form_ground select:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
+}
+
+.form_ground option {
+    padding: 0.5rem;
+}
+
+/* Style cho phần hiển thị role đã chọn */
+.form_ground .selected-role {
+    font-weight: bold;
+    color: #007bff;
+    margin-top: 0.5rem;
+}
+
+.btn-submit {
+    width: 200px;
+    height: 40px;
+    border-radius: 40px;
+    margin-top: 50px;
+    background-color: #ff0033;
+    font-weight: bold;
+    color: white;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+
+.error-message {
+    padding: 2px 5px;
+    height: 14px;
+    color: red;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 10px;
+    
+}

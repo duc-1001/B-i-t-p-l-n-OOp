@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Project Java</title>
+    <link th:href="@{/css/styles.css}" rel="stylesheet" />
+    <link th:href="@{/css/header.css}" rel="stylesheet" />
+    <link th:href="@{/css/classroom.css}" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+
+<body>
+    <div th:replace="fragments/header :: header"></div>
+    <div class="container">
+        <div th:if="${currentUser.role == 'teacher'}">
+            <div th:replace="fragments/sidebar :: sidebar"></div>
+        </div>
+        <div th:if="${currentUser.role == 'student'}">
+            <div th:replace="fragments/sidebarStudent :: sidebarStudent"></div>
+        </div>
+        <div class="container_content">
+            <div class="container_content_title" th:text="'Thành viên lớp học (' + ${room.getStudentsCount} +')'">
+                Thành viên lớp học (0)
+            </div>
+            <div class="line"></div>
+            <div class="list_member_container">
+                <div class="list_member_header">
+                    <div class="">Họ tên</div>
+                    <div class="list_member_header_item">Email</div>
+                    <div class="list_member_header_item">Bài đã làm</div>
+                </div>
+                <div th:each="student : ${students}" class="list_member">
+                    <div class="member">
+                        <div class="" th:text="${student.username}">Đào Danh Đức</div>
+                        <div class="list_member_header_item" th:text="${student.email}">duc@gmail.com</div>
+                        <div class="list_member_header_item" th:text="'0'+'/'+${room.getExercise}"></div>
+                        <a th:href="@{../../classroom/delete_user/{id}/{classId}(id=${student.id},classId=${room.id})}"
+                            th:if="${currentUser.role == 'teacher'}" class="delete_room"
+                            onclick="return confirm('Bạn có muốn xoá học sinh ra lớp học không?')">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const currentPath = window.location.pathname.split('/')[3];
+        console.log(currentPath);
+        document.querySelectorAll('.container_sidebar_item').forEach(item => {
+            const href = item.getAttribute('data-href').split('/')[3];
+            console.log(href);
+            if (currentPath.includes(href)) {
+                item.classList.add('active');
+            }
+        });
+    });
+</script>
+
+</html>

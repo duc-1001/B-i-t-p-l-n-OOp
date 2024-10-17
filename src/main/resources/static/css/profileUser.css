@@ -1,0 +1,125 @@
+h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="file"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.btn-update {
+    margin-top: 30px;
+    background-color: #f32e3b;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.container-form{
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.infor_user{
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.infor_user label{
+    margin-bottom: 10px;
+}
+
+.btn-update:hover {
+    background-color: #c2020f;
+}
+
+.avatar{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.avatar label{
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 6px;
+    background-color: rgb(26, 149, 250);
+    color: white;
+    cursor: pointer;
+}
+
+.avatar img{
+    display: block;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    margin: 0 auto;
+}
+
+.message {
+    text-align: center;
+    margin: 10px 0;
+    color: green; 
+}
+
+.error-message {
+    text-align: center;
+    margin: 10px 0;
+    color: red; 
+}
+
+.password{
+    width: 100%;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.password p{
+    transform: translateY(4px);
+}
+
+.password a{
+    text-decoration: none;
+    color: black;
+    font-size: 15px;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.password a:hover{
+    color: #f32e3b;
+}
+
+.password:hover a{
+    opacity: 1;
+    visibility: visible;
+}

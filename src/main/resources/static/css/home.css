@@ -1,0 +1,138 @@
+.container {
+    width: 100%;
+    margin-top: 50px;
+    padding: 0 10px;
+}
+
+.feature {
+    width: 100;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 20px;
+}
+
+.search_class {
+    flex: 1;
+    padding: 15px;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+}
+
+.search_class input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 16px;
+}
+
+.btn_create_new_class {
+    background-color: #ff0033;
+    color: white;
+    font-size: 18px;
+    font-weight: 500;
+    height: 51px;
+    padding: 0px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    gap: 10px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn_create_new_class:hover {
+    background-color: #d6002b;
+}
+
+
+.list_room {
+    margin-top: 40px;
+    width: 100%;
+}
+
+
+.list_room_header {
+    width: 100%;
+    background-color: #e0e0e0;
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr;
+    font-weight: bold;
+    padding: 10px 20px;
+}
+
+.list_room_header_student,
+.list_room_header_exercise {
+    display: flex;
+    justify-content: center;
+}
+
+.list_room_container {
+    margin-top: 10px;
+    width: 100%;
+}
+
+.list_room_item{
+    position: relative;
+}
+
+.list_room_item_link {
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 3;
+    grid-template-columns: 3fr 1fr 1fr;
+    padding: 8px 20px;
+    cursor: pointer;
+    color: black;
+    text-decoration: none;
+}
+
+.list_room_item_link:hover {
+    background-color: #f5f5f5;
+    transition: 0.2s;
+}
+
+.name_room {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.image_room {
+    height: 70px;
+}
+
+.room_info div {
+    font-weight: 500;
+}
+
+.room_info small {
+    font-size: 11px;
+}
+
+.students,
+.exercise {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.edit_room,.delete_room {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 20px;
+    cursor: pointer;
+    color: black;
+}
+
+.edit_room:hover,.delete_room:hover {
+    color: red;
+}
+
+.edit_room{
+    right: 60px;
+}

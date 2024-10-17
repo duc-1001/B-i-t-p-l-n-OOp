@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Java</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link th:href="@{/css/styles.css}" rel="stylesheet" />
+    <link th:href="@{/css/findClass.css}" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="https://shub.edu.vn/images/white-shub-logo.svg" alt="Logo">
+        </div>
+        <div class="find-class" th:if="${classroom.id == null || classroom.id == ''}">
+            <div class="title">Tham gia lớp bằng mã lớp</div>
+            <div>Mã lớp được giáo viên lớp đó cung cấp</div>
+            <form class="form" th:action="@{/classroom/find}" th:object="${classroom}" method="post">
+                <div class="input_search">
+                    <input type="text" th:field="*{id}" placeholder="Nhập mã lớp">
+                </div>
+                <div class="error-message">
+                    <div th:if="${#fields.hasErrors('id')}" th:errors="*{id}"></div>
+                </div>
+                <button type="submit" class="btn-submit-find">Tìm lớp</button>
+            </form>
+            <a class="go_back_class" href="/">
+                <i class="fa-solid fa-arrow-left-long"></i>
+                Quay lại danh sách lớp
+            </a>
+        </div>
+        <div class="room" th:if="${classroom.id != null && classroom.id != ''}">
+            <div class="title">
+                <a th:href="@{/classroom/find}"><i class="fa-solid fa-arrow-left-long"></i></a>
+                <p>Tìm thấy 1 lớp học</p>
+            </div>
+            <div class="image_room">
+                <img src="https://shub-storage.sgp1.cdn.digitaloceanspaces.com/profile_images/33-01.jpg"
+                    alt="Classroom Image">
+            </div>
+            <div class="room_name" th:text="${classroom.name}"></div>
+            <div class="room_id">
+                <div>Mã lớp</div>
+                <div th:text="${classroom.id}"></div>
+            </div>
+            <div class="room_teacher">
+                <div>Giáo viên</div>
+                <div th:text="${teacher.username}"></div>
+            </div>
+            <form method="post" th:action="@{/classroom/join/{id}(id=${classroom.id})}">
+                <button class="btn-submit-join" type="submit">
+                    Tham gia lớp
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Project Java</title>
+    <link th:href="@{css/styles.css}" rel="stylesheet" />
+    <link th:href="@{css/home.css}" rel="stylesheet" />
+    <link th:href="@{css/header.css}" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+
+<body>
+    <div th:insert="~{fragments/header :: header}"></div>
+    <div class="container">
+        <div class="feature">
+            <div class="search_class">
+                <input type="text" placeholder="Tìm kiếm ...">
+            </div>
+            <a href="/classroom/create" class="btn_create_new_class" th:if="${currentUser.role == 'teacher'}">
+                <i class="fa-solid fa-plus"></i>
+                Tạo lớp học
+            </a>
+            <a href="/classroom/find" class="btn_create_new_class" th:if="${currentUser.role == 'student'}">
+                <i class="fa-solid fa-plus"></i>
+                Tìm lớp học
+            </a>
+        </div>
+    </div>
+    <div class="list_room">
+        <div class="list_room_header">
+            <div class="list_room_header_name">Tên lớp</div>
+            <div class="list_room_header_student">Học sinh</div>
+            <div class="list_room_header_exercise">Bài tập</div>
+        </div>
+        <div class="list_room_container" th:each="room : ${rooms}">
+            <div class="list_room_item">
+                <a class="list_room_item_link" th:href="@{classroom/{id}/member(id = ${room.getId()})}">
+                    <div class="name_room">
+                        <div class="image_room">
+                            <img src="https://shub-storage.sgp1.cdn.digitaloceanspaces.com/profile_images/33-01.jpg"
+                                alt="image" />
+                        </div>
+                        <div class="room_info">
+                            <div th:text="${room.name}">Room Name</div>
+                            <small th:text="'Mã lớp: ' + ${room.id}">MMMMMM</small> <!-- Nội dung thay đổi nếu cần -->
+                        </div>
+                    </div>
+                    <div class="students" th:text="${room.getStudentsCount}">0</div>
+                    <div class="exercise" th:text="${room.getExercise}">0</div>
+                </a>
+                <a th:href="@{classroom/delete/{id}(id=${room.id})}" th:if="${currentUser.role == 'teacher'}"
+                    class="delete_room teacher" onclick="return confirm('Bạn có muốn xoá lớp học không?')">
+                    <i class="fa-solid fa-trash-can"></i>
+                </a>
+                <a th:href="@{classroom/edit/{id}(id=${room.id})}" th:if="${currentUser.role == 'teacher'}"
+                    class="edit_room">
+                    <i class="fa-solid fa-pencil"></i>
+                </a>
+                <a th:href="@{classroom/rejoin/{id}(id=${room.id})}" th:if="${currentUser.role == 'student'}"
+                    class="delete_room" onclick="return confirm('Bạn có muốn rời khỏi lớp học không?')">
+                    <i class="fa-solid fa-trash-can"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

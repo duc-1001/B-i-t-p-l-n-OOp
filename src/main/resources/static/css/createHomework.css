@@ -1,0 +1,195 @@
+.form_create_homework {
+    width: 800px;
+    margin: 10px auto 50px;
+    padding: 10px;
+    box-shadow: 0 0 5px #aaa;
+    border-radius: 10px;
+}
+
+.title_quiz,
+.maxAttempts_quiz,
+.showAnswer_quiz,
+.scoreType_quiz,
+.examDuration_quiz {
+    display: inline-block;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.scoreType_quiz {
+    margin-top: 10px;
+}
+
+select#scoreType {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+select#scoreType:focus {
+    border-color: #007bff;
+    /* Màu viền khi có focus */
+    outline: none;
+    /* Ẩn outline mặc định */
+}
+
+#scoreType option {
+    padding: 10px;
+    /* Padding cho các tùy chọn */
+}
+
+
+#showAnswer {
+    width: 16px;
+    height: 16px;
+    transform: translateY(2px);
+}
+
+.input_title_quiz,
+.input_maxAttempts_quiz,
+.input_examDuration_quiz {
+    padding: 10px;
+    background-color: aliceblue;
+    border: none;
+    outline: none;
+    margin: 10px 0;
+    font-size: 16px;
+    width: 100%;
+}
+
+.option {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0px;
+    border: none;
+    outline: none;
+    background-color: aliceblue;
+}
+
+.content_question {
+    width: 100%;
+    resize: none;
+    padding: 10px;
+    font-size: 16px;
+    outline: none;
+    border: none;
+    background-color: aliceblue;
+    field-sizing: content;
+    max-height: 250px;
+}
+
+.question_answer {
+    width: 130px;
+    height: 40px;
+    padding: 10px;
+    outline: none;
+    margin-bottom: 20px;
+}
+
+#add-question-btn,
+.delete-question-btn {
+    padding: 10px;
+    border: none;
+    outline: none;
+    background-color: #ff0033;
+    font-weight: bold;
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+}
+
+.create_homework {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    outline: none;
+    background-color: #ff0033;
+    font-weight: bold;
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+}
+
+.delete-question-btn {
+    background-color: #aaa;
+}
+
+.examDuration,
+.showAnswer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.examDuration {
+    margin-bottom: 10px;
+}
+
+#examDurationCheckBox:checked~.examDuration_input {
+    width: 100%;
+    display: inline-block;
+}
+
+.examDuration_input {
+    display: none;
+    margin-bottom: 10px;
+}
+
+.btn_examDuration,
+.btn_showAnswer {
+    width: 38px;
+    height: 20px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    position: relative;
+    cursor: pointer;
+}
+
+.point {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-radius: 50px;
+    background-color: #aaa;
+    transition: all 0.1s;
+}
+
+#examDurationCheckBox:checked+.examDuration .btn_examDuration .point {
+    transform: translateX(100%);
+    background-color: #ff0033;
+}
+
+#examDurationCheckBox:checked+.examDuration .btn_examDuration {
+    border: 1px solid #ff0033;
+}
+
+#showAnswer:checked+.showAnswer .btn_showAnswer .point {
+    transform: translateX(100%);
+    background-color: #ff0033;
+}
+
+#showAnswer:checked+.showAnswer .btn_showAnswer {
+    border: 1px solid #ff0033;
+}
+
+.examDuration_input_option {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 60px;
+}
+
+.time_item {
+    font-size: 14px;
+    border-radius: 4px;
+    height: 2rem;
+    background-color: rgb(255, 222, 31);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Project Java</title>
+    <link th:href="@{/css/styles.css}" rel="stylesheet" />
+    <link th:href="@{/css/header.css}" rel="stylesheet" />
+    <link th:href="@{/css/classroom.css}" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+
+<body>
+    <div th:replace="fragments/header :: header"></div>
+    <div class="container">
+        <div th:replace="fragments/sidebarStudent :: sidebarStudent"></div>
+        <div class="container_content">
+            <div class="container_content_title">
+                Bài tập
+            </div>
+            <div class="line"></div>
+            <div class="list_quiz_container">
+                <div class="list_quiz">
+                    <div th:each="quizStudent, iterStat : ${quizStudents}" class="quiz_item"
+                        th:classappend="${iterStat.index == 0} ? ' active' : ''" th:data-room-id="${room.id}"
+                        th:data-quiz-id="${quizStudent.quiz.id}" th:data-title="${quizStudent.quiz.title}"
+                        th:data-maxAttempts="${quizStudent.quiz.maxAttempts}"
+                        th:data-questions-size="${#lists.size(quizStudent.quiz.questions)}"
+                        th:data-quiz-results="${quizStudent.quizResults.size()}"
+                        th:data-quiz-isDoing="${quizStudent.getIsDoing()}"
+                        th:data-quiz-isResult="${quizStudent.getIsResultQuiz()}">
+                        <img src="https://shub.edu.vn/images/icons/doc_blue.png" alt="">
+                        <div>
+                            <div th:text="${quizStudent.quiz.title}"></div>
+                            <div class="quiz_student_description">
+                                <div class="line_point">
+                                    <div class="line"></div>
+                                </div>
+                                <small class="error-message"
+                                    th:if="${quizStudent.quizResults} == null or ${quizStudent.quizResults.size()}==0">chưa
+                                    làm</small>
+                                <small th:if="${quizStudent.quizResults} != null and ${quizStudent.quizResults.size()}>0"
+                                    th:text="${scores[quizStudent.id]} +'/10'"
+                                    th:data-score="${scores[quizStudent.id]}"></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="quiz_info" style="display: block;" th:if="${quizStudents[0].quiz.id!=''}">
+                    <div class="quiz_info_title" th:text="${quizStudents[0].quiz.title}"></div>
+                    <div class="line"></div>
+                    <div class="quiz_info_maxAttempts">
+                        <div>Số lần làm bài</div>
+                        <b th:text="${quizStudents[0].quiz.maxAttempts}">No data</b>
+                    </div>
+                    <div class="quiz_info_quiz_results">
+                        <div>Đã làm</div>
+                        <b th:text="${quizStudents[0].quizResults.size()} + '/'+${quizStudents[0].quiz.maxAttempts}">No
+                            data</b>
+                    </div>
+                    <div class="quiz_info_question">
+                        <div>Số câu hỏi</div>
+                        <b th:text="${#lists.size(quizStudents[0].quiz.questions)}">No data</b>
+                    </div>
+                    <div class="line"></div>
+                    <a th:href="@{'../../../quiz/' + ${quizStudents[0].quiz.id}}" class="learn_quiz"
+                        th:classappend="${quizStudents[0].quizResults == null or quizStudents[0].quizResults.size() != quizStudents[0].quiz.maxAttempts} ? '' : 'hidden'"
+                        th:text="${quizStudents[0].getIsDoing()} ? 'Tiếp tục làm bài' : 'Bắt đầu làm bài'">Bắt đầu làm
+                        bài</a>
+
+                    <a th:href="@{../../../quiz/{quizId}/detal?q=1(quizId=${quizStudents[0].quiz.id})}"
+                        class="result_quiz"
+                        th:classappend="${quizStudents[0].getIsResultQuiz()} == true ? '' :'hidden'">
+                        Chi tiết
+                        <i class="fa-solid fa-arrow-right-long"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const currentPath = window.location.pathname.split('/')[3];
+            document.querySelectorAll('.container_sidebar_item').forEach(item => {
+                const href = item.getAttribute('data-href').split('/')[3];
+                if (currentPath.includes(href)) {
+                    item.classList.add('active');
+                }
+            });
+        });
+    </script>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const quizItems = document.querySelectorAll('.quiz_item');
+            const quizInfoTitle = document.querySelector('.quiz_info_title');
+            const quizInfoMaxAttempts = document.querySelector('.quiz_info_maxAttempts b');
+            const quizInfoQuestions = document.querySelector('.quiz_info_question b');
+            const quizInfoQuizResults = document.querySelector('.quiz_info_quiz_results b');
+            const learnQuizLink = document.querySelector('.learn_quiz');
+            const resultQuizLink = document.querySelector('.result_quiz');
+            quizItems.forEach((item, idx) => {
+                item.addEventListener('click', function () {
+                    quizItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+
+                    const roomId = this.getAttribute('data-room-id');
+                    const quizId = this.getAttribute('data-quiz-id');
+                    const title = this.getAttribute('data-title');
+                    const maxAttempts = this.getAttribute('data-maxAttempts');
+                    const questionsSize = this.getAttribute('data-questions-size');
+                    const quizResults = this.getAttribute('data-quiz-results');
+                    const quizIsDoing = this.getAttribute('data-quiz-isDoing');
+                    const isQuizResults = this.getAttribute('data-quiz-isResult');
+
+
+                    quizInfoTitle.textContent = title;
+                    quizInfoMaxAttempts.textContent = maxAttempts;
+                    quizInfoQuestions.textContent = questionsSize;
+                    quizInfoQuizResults.textContent = quizResults + '/' + maxAttempts;
+
+                    if (learnQuizLink) {
+                        if (JSON.parse(quizResults) < JSON.parse(maxAttempts)) {
+                            learnQuizLink.style.display = 'inline-block';
+                        }
+                        else {
+                            learnQuizLink.style.display = 'none';
+                        }
+
+                        if (quizIsDoing === 'true') {
+                            learnQuizLink.textContent = 'Tiếp tục làm bài'
+                        }
+                        else {
+                            learnQuizLink.textContent = 'Bắt đầu làm bài'
+                        }
+                        learnQuizLink.href = `../../../quiz/${quizId}`;
+                    }
+
+                    if (quizResults && resultQuizLink && isQuizResults === 'true') {
+                        resultQuizLink.href = `../../../quiz/${quizId}/detal?q=1`;
+                        resultQuizLink.style.display = 'inline-block';
+                    } else if (resultQuizLink && isQuizResults === 'false') {
+                        resultQuizLink.style.display = 'none';
+                    }
+                    document.querySelector('.quiz_info').style.display = 'block';
+                });
+            });
+
+            const scores = document.querySelectorAll('small[data-score]')
+            console.log(scores);
+            
+            scores.forEach((e)=>{
+                const score = e.getAttribute('data-score')
+                const parent = e.parentElement
+                const percent = Math.floor(score/10 * 100)
+                console.log(parent.querySelector('.line_point .line'));
+                parent.querySelector('.line_point .line').style.width = percent+"%"
+                
+            })
+        });
+    </script>
+</body>
+
+</html>

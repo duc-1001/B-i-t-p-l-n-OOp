@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Project Java</title>
+    <link th:href="@{css/styles.css}" rel="stylesheet" />
+    <link th:href="@{css/header.css}" rel="stylesheet" />
+    <link th:href="@{css/profileUser.css}" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+
+<body>
+    <div th:insert="~{fragments/header :: header}"></div>
+    <div class="container">
+        <h1>Hồ Sơ Người Dùng</h1>
+
+        <form action="/profile/update" method="post" enctype="multipart/form-data">
+            <div class="container-form">
+                    <div class="avatar" for="file">
+                        <img th:src="${currentUser.avatarUrl} + '?v=' + ${#dates.format(#dates.createNow(), 'yyyyMMddHHmmss')}"
+                            alt="Avatar">
+                            <label for="file">Thay ảnh đại diện</label>
+                    </div>
+                <div class="infor_user">
+                    <input type="file" id="file" name="file" hidden accept="image/*">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <input hidden type="text" id="id" name="id" th:value="${currentUser.id}">
+
+                    <label>Email người dùng:</label>
+                    <input type="text" id="enail" name="email" th:value="${currentUser.email}" disabled>
+
+                    <div>
+                        <label for="password">Mật khẩu:</label>
+                    </div>
+                    <div class="password">
+                        <p>*************</p>
+                        <a th:href="@{/profile/change-password}">
+                            <i class="fa-solid fa-pencil"></i>
+                        </a>
+                    </div>
+
+                    <label>Chức vụ người dùng:</label>
+                    <input type="text" id="role" name="role" th:value="${currentUser.role}" disabled>
+
+                    <label for="username">Tên người dùng:</label>
+                    <input type="text" id="username" name="username" th:value="${currentUser.username}"
+                        placeholder="Username" required>
+                </div>
+            </div>
+            <input type="submit" class="btn-update" value="Cập nhật">
+        </form>
+
+        <div th:if="${message} != null " class="message">
+            ${message}
+        </div>
+        <div th:if="${errorMessage} != null " class="error-message">
+            ${errorMessage}
+        </div>
+    </div>
+</body>
+
+<script>
+    document.querySelector("#file").onchange = function () {
+        const file = this.files[0]
+
+        document.querySelector('.avatar img').src = URL.createObjectURL(file)
+    }
+</script>
+
+</html>
