@@ -265,13 +265,24 @@ public class ClassController {
             Classroom room = optionalRoom.get();
             List<String> studentIds = room.getStudentIds();
             List<User> students = new ArrayList<>();
+            List<Quiz> quizs = quizRepository.findByClassroom_Id(id);
             Optional<User> optionalTeacher = userRepository.findById(room.getTeacherId());
             for (String studentId : studentIds) {
                 Optional<User> optionalStudent = userRepository.findById(studentId);
                 optionalStudent.ifPresent(students::add);
             }
-
-            modelMap.addAttribute("teacher", optionalTeacher.get());
+            Map<String,Integer> ds = new LinkedHashMap<>();
+            for(User user:students){
+                ds.put(user.getId(), 0);
+                for(Quiz quiz:quizs){
+                    QuizStudent quizStudent = quizStudentRepository.findByStudentIdAndQuiz(user.getId(), quiz);
+                    if(quizStudent.getQuizResults().size()>0){
+                        ds.put(user.getId(), ds.get(user.getId())+1);
+                    }
+                }
+            }
+            optionalTeacher.ifPresent(teacher -> modelMap.addAttribute("teacher", teacher));
+            modelMap.addAttribute("ds", ds);
             modelMap.addAttribute("students", students);
             modelMap.addAttribute("room", room);
         }

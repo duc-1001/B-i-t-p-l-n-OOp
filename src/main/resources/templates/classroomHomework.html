@@ -30,8 +30,9 @@
                         th:classappend="${iterStat.index == 0} ? ' active' : ''" th:data-room-id="${room.id}"
                         th:data-quiz-id="${quiz.id}" th:data-title="${quiz.title}"
                         th:data-maxAttempts="${quiz.maxAttempts}"
-                        th:data-questions-size="${#lists.size(quiz.questions)}">
-                        <img src="https://shub.edu.vn/images/icons/doc_blue.png" alt="">
+                        th:data-questions-size="${#lists.size(quiz.questions)}"
+                        th:data-isExamDuration="${quiz.isExamDuration}" th:data-examDuration="${quiz.examDuration}">
+                        <img src="/images/pngegg.png" alt="">
                         <div>
                             <div th:text="${quiz.title}"></div>
                             <small th:text=" ${count[quiz.id]} + '/' + ${room.studentIds.size()} + ' đã làm'"></small>
@@ -49,9 +50,19 @@
                         <div>Số câu hỏi</div>
                         <b th:text="${#lists.size(quizzes[0].questions)}">No data</b>
                     </div>
+                    <div class="quiz_info_examDuration">
+                        <div>Thời gian làm bài</div>
+                        <b th:text="${quizzes[0].isExamDuration} ?  ${quizzes[0].examDuration} +' phút' :'Không có'">No
+                            data</b>
+                    </div>
                     <div class="line"></div>
                     <a th:href="@{../../{id}/homework/edit/{quizId}(id=${room.id},quizId=${quizzes[0].id})}"
                         class="edit_quiz" th:if="${currentUser.role == 'teacher'}">Chỉnh sửa bài tập</a>
+                    <a th:href="@{../../../quiz/{quizId}/detal(quizId=${quizzes[0].id})}"
+                        class="result_quiz">
+                        Chi tiết
+                        <i class="fa-solid fa-arrow-right-long"></i>
+                    </a>
                 </div>
             </div>
         </div>
@@ -76,7 +87,9 @@
             const quizInfoTitle = document.querySelector('.quiz_info_title');
             const quizInfoMaxAttempts = document.querySelector('.quiz_info_maxAttempts b');
             const quizInfoQuestions = document.querySelector('.quiz_info_question b');
+            const quizInfoExamDuration = document.querySelector('.quiz_info_examDuration b');
             const editQuizLink = document.querySelector('.edit_quiz');
+            const resultQuizLink = document.querySelector('.result_quiz');
             quizItems.forEach((item, idx) => {
                 item.addEventListener('click', function () {
                     quizItems.forEach(i => i.classList.remove('active'));
@@ -87,13 +100,26 @@
                     const title = this.getAttribute('data-title');
                     const maxAttempts = this.getAttribute('data-maxAttempts');
                     const questionsSize = this.getAttribute('data-questions-size');
+                    const isExamDuration = this.getAttribute('data-isExamDuration');
+                    const examDuration = this.getAttribute('data-examDuration');
 
                     quizInfoTitle.textContent = title;
                     quizInfoMaxAttempts.textContent = maxAttempts;
                     quizInfoQuestions.textContent = questionsSize;
 
+                    if (isExamDuration == 'true') {
+                        quizInfoExamDuration.innerHTML = examDuration + ' phút';
+                    }
+                    else {
+                        quizInfoExamDuration.innerHTML = 'Không có';
+                    }
+
                     if (editQuizLink) {
                         editQuizLink.href = `../../${roomId}/homework/edit/${quizId}`;
+                    }
+
+                    if (resultQuizLink) {
+                        resultQuizLink.href = `../../../quiz/${quizId}/detal`;
                     }
                     document.querySelector('.quiz_info').style.display = 'block';
                 });

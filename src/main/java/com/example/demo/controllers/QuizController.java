@@ -165,7 +165,7 @@ public class QuizController {
                 modelMap.addAttribute("quiz", quiz);
                 modelMap.addAttribute("questions", questions);
                 System.out.println(roundedScore);
-                return "redirect:/quiz/" + id + "/detal?q=" + quizResults.size();
+                return "redirect:/quiz/" + id + "/detal?q=" + params.get("quizResultId");
 
             } else {
                 return "error";
@@ -217,37 +217,60 @@ public class QuizController {
             @RequestParam Map<String, String> params) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
-            int q = Integer.parseInt(params.get("q"));
+            // int q = Integer.parseInt(params.get("q"));
             String username = authentication.getName();
             User currentUser = userRepository.findByEmail(username);
-            Optional<Quiz> optionalQuiz = quizRepository.findById(id);
-            if (optionalQuiz.isPresent()) {
-                Quiz quiz = optionalQuiz.get();
-                List<Question> questions = quiz.getQuestions();
-                Classroom classroom = quiz.getClassroom();
-                QuizStudent quizStudent = quizStudentRepository.findByClassroomIdAndStudentIdAndQuiz(classroom.getId(),
-                        currentUser.getId(), quiz);
-                List<QuizResult> quizResults = new ArrayList<>();
-                for (QuizResult quizResult : quizStudent.getQuizResults()) {
-                    if (quizResult.isCompleted()) {
-                        quizResults.add(quizResult);
+            if ("student".equals(currentUser.getRole())) {
+                Optional<Quiz> optionalQuiz = quizRepository.findById(id);
+                if (optionalQuiz.isPresent()) {
+                    Quiz quiz = optionalQuiz.get();
+                    List<Question> questions = quiz.getQuestions();
+                    Classroom classroom = quiz.getClassroom();
+                    QuizStudent quizStudent = quizStudentRepository.findByClassroomIdAndStudentIdAndQuiz(
+                            classroom.getId(),
+                            currentUser.getId(), quiz);
+                    List<QuizResult> quizResults = new ArrayList<>();
+                    for (QuizResult quizResult : quizStudent.getQuizResults()) {
+                        if (quizResult.isCompleted()) {
+                            quizResults.add(quizResult);
+                        }
                     }
-                }
-                if(quiz.getShowAnswer()){
-                    List<String> correctAnswers = new ArrayList<>();
-                    for(Question question:questions){
-                        correctAnswers.add(question.getCorrectAnswer());
+                    if (quiz.getShowAnswer()) {
+                        List<String> correctAnswers = new ArrayList<>();
+                        for (Question question : questions) {
+                            correctAnswers.add(question.getCorrectAnswer());
+                        }
+                        modelMap.addAttribute("correctAnswers", correctAnswers);
                     }
-                    modelMap.addAttribute("correctAnswers",correctAnswers);
+                    Optional<QuizResult> optionalQuizResult = quizResultRepository.findById(params.get("q"));
+                    int index = -1;
+                    for (int i = 0; i < quizResults.size(); i++) {
+                        if (quizResults.get(i).getId().equals(params.get("q"))) {
+                            index = i + 1;
+                            break;
+                        }
+                    }
+                    if (index == -1) {
+                        modelMap.addAttribute("errorText", "Không có kết quả bài làm");
+                        return "errorMaxAttempt";
+                    }
+                    modelMap.addAttribute("q", index);
+                    modelMap.addAttribute("quiz", quiz);
+                    modelMap.addAttribute("classroom", classroom);
+                    modelMap.addAttribute("quizResults", quizResults);
+                    optionalQuizResult.ifPresent(quizResult -> {
+                        modelMap.addAttribute("answers", quizResult.getAnswers());
+                        modelMap.addAttribute("quizResult", quizResult);
+                    });
+                    modelMap.addAttribute("questions", questions);
                 }
-                modelMap.addAttribute("q", q);
-                modelMap.addAttribute("quiz", quiz);
-                modelMap.addAttribute("classroom", classroom);
-                modelMap.addAttribute("quizResults", quizResults);
-                modelMap.addAttribute("answers", quizResults.get(q - 1).getAnswers());
-                modelMap.addAttribute("questions", questions);
+                return "detalQuiz";
+            } else {
+                modelMap.addAttribute("errorText", "Không có quyền xem");
+                return "errorMaxAttempt";
             }
+        } else {
+            return "redirect:/login";
         }
-        return "detalQuiz";
     }
 }

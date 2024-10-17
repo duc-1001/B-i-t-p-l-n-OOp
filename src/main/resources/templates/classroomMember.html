@@ -34,7 +34,7 @@
                     <div class="member">
                         <div class="" th:text="${student.username}">Đào Danh Đức</div>
                         <div class="list_member_header_item" th:text="${student.email}">duc@gmail.com</div>
-                        <div class="list_member_header_item" th:text="'0'+'/'+${room.getExercise}"></div>
+                        <div class="list_member_header_item" th:text="${ds[student.id]}+'/'+${room.getExercise}"></div>
                         <a th:href="@{../../classroom/delete_user/{id}/{classId}(id=${student.id},classId=${room.id})}"
                             th:if="${currentUser.role == 'teacher'}" class="delete_room"
                             onclick="return confirm('Bạn có muốn xoá học sinh ra lớp học không?')">

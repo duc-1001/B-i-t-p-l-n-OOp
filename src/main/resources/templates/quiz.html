@@ -11,8 +11,8 @@
 
 <body>
     <form method="post" th:action="@{{id}(id=${quiz.id})}" class="container">
-        <input name="quizResultId" hidden th:value="${quizResultId}" />
-        <input type="hidden" name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <input name="quizResultId" hidden th:value="${quizResultId}" readonly />
+        <input type="hidden" name="${_csrf.parameterName}" th:value="${_csrf.token}" readonly />
         <div class="list_question">
             <div th:each="question,questionIndex : ${questions}" class="question">
                 <h3 th:text="'Câu '+${questionIndex.count}+' :'"></h3>
@@ -62,22 +62,32 @@
             </div>
         </div>
         <div class="options">
-            <div class="quiz_time">
+            <div class="quiz_time" th:if="${quiz.isExamDuration}">
+                <div>
+                    Thời gian còn lại
+                </div>
+                <div class="time">
+                    <!-- Hiển thị thời gian thi tại đây nếu cần -->
+                </div>
+            </div>
+            <div class="quiz_time" th:if="${!quiz.isExamDuration}">
                 <div>
                     Thời gian làm bài
                 </div>
                 <div class="time">
-
+                    <!-- Hiển thị thời gian làm bài tại đây nếu cần -->
                 </div>
             </div>
             <div class="quiz_title_container">
                 <div class="quiz_title">
-                    <img src="https://shub.edu.vn/images/icons/doc_blue.png" alt="quiz_img" />
+                    <img src="/images/pngegg.png" alt="">
                     <b th:text="${quiz.title}">Quiz page</b>
                 </div>
                 <div class="list">
                     <div th:each="question,questionIndex : ${questions}" class="item">
-                        <div th:text="${quizResult.answers[questionIndex.index]} != '' ? ${questionIndex.count} +': '+${quizResult.answers[questionIndex.index]}: ${questionIndex.count}"></div>
+                        <div
+                            th:text="${quizResult.answers[questionIndex.index]} != '' ? ${questionIndex.count} +': '+${quizResult.answers[questionIndex.index]}: ${questionIndex.count}">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -91,14 +101,19 @@
 </body>
 
 <script>
-    let totalSeconds = [[${quizResult.getAttemptTime()}]];
+    let totalSeconds = [[${ quizResult.getAttemptTime() }]];
+    let examDuration = [[${ quiz.getExamDuration() }]];
+    const isExamDuration = [[${ quiz.getIsExamDuration() }]];
+
+
 
     document.addEventListener("DOMContentLoaded", function () {
         const listAnswer = document.querySelectorAll(".answer label");
         const items = document.querySelectorAll(".item");
         const quizId = window.location.pathname.split('/')[2];
-
-
+        const quizResultId = document.querySelector('input[name="quizResultId"]').value;
+        const form = document.querySelector(".container");
+        
         listAnswer.forEach((label, index) => {
             label.addEventListener('click', function () {
                 const answers = this.closest('.answers');
@@ -143,7 +158,6 @@
 
         async function sendData(totalSeconds) {
             if (quizId) {
-                const form = document.querySelector(".container");
                 const formData = new FormData(form);
                 const data = {};
 
@@ -168,22 +182,37 @@
             }
         }
 
-        const throttledSendData = throttle(sendData, 1000); 
+        const throttledSendData = throttle(sendData, 1000);
 
-        displayTime(totalSeconds);
+        function showTime() {
+            if (isExamDuration) {
+                displayTime(examDuration * 60 - totalSeconds);
+            }
+            else {
+                displayTime(totalSeconds);
+            }
+        }
+
+        showTime();
         const interval = setInterval(() => {
             totalSeconds++;
-            displayTime(totalSeconds);
-            throttledSendData(totalSeconds);
-            if (totalSeconds < 0) {
-                clearInterval(interval);
+            if (isExamDuration) {
+                if (totalSeconds >= examDuration * 60) { 
+                    clearInterval(interval);
+                    alert("Thời gian làm bài đã hết. Bài thi sẽ được tự động nộp."); 
+                    form.submit() 
+                    return;
+                }
             }
+
+            showTime()
+            throttledSendData(totalSeconds);
         }, 1000);
 
         window.addEventListener('beforeunload', async (event) => {
             if (quizId) {
                 await sendData(totalSeconds);
-                event.preventDefault(); 
+                event.preventDefault();
                 event.returnValue = '';
             }
         });

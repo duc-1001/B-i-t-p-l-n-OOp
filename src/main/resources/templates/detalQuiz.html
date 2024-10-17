@@ -72,19 +72,19 @@
                 <div class="answer_options_link">
                     <div th:each="quizResult,quizResultIndex :${quizResults}">
                         <a th:classappend="${quizResultIndex.count}==${q} ? 'active':'' "
-                            th:href="@{../{id}/detal(id=${quiz.id},q=${quizResultIndex.count})}" class="answer_link"
+                            th:href="@{../{id}/detal(id=${quiz.id},q=${quizResult.id})}" class="answer_link"
                             th:text="'Lần làm bài '+${quizResultIndex.count}">Lần 1</a>
                     </div>
                 </div>
             </div>
             <div class="quiz_info">
                 <div class="quiz_info_correct_answer_count" th:with="index=${q}"
-                    th:text="${quizResults[index-1].correctAnswersCount} + ' / ' + ${questions.size()}"></div>
+                    th:text="${quizResult.correctAnswersCount} + ' / ' + ${questions.size()}"></div>
                 <div class="quiz_info_description">
                     <div class="quiz_info_time">
                         <div>Thời gian</div>
-                        <div th:with="index=${q}" th:attr="time = ${quizResults[index-1].attemptTime}"
-                            th:text="${quizResults[index-1].attemptTime}">12 giây</div>
+                        <div th:with="index=${q}" th:attr="time = ${quizResult.attemptTime}"
+                            th:text="${quizResult.attemptTime}">12 giây</div>
                     </div>
                     <div class="quiz_info_correct_answer">
                         <div class="first">
@@ -93,7 +93,7 @@
                                 Số câu đúng
                             </div>
                         </div>
-                        <div class="end" th:with="index=${q}" th:text="${quizResults[index-1].correctAnswersCount}">12
+                        <div class="end" th:with="index=${q}" th:text="${quizResult.correctAnswersCount}">12
                             giây</div>
                     </div>
                     <div class="quiz_info_wrong_answer">
@@ -103,7 +103,7 @@
                                 Số câu sai
                             </div>
                         </div>
-                        <div class="end" th:with="index=${q}" th:text="${quizResults[index-1].wrongAnswersCount}">12
+                        <div class="end" th:with="index=${q}" th:text="${quizResult.wrongAnswersCount}">12
                             giây</div>
                     </div>
                     <div class="quiz_info_unanswered_answer">
@@ -113,7 +113,7 @@
                                 Chưa làm
                             </div>
                         </div>
-                        <div class="end" th:with="index=${q}" th:text="${quizResults[index-1].unansweredCount}">12 giây
+                        <div class="end" th:with="index=${q}" th:text="${quizResult.unansweredCount}">12 giây
                         </div>
                     </div>
                 </div>

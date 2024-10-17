@@ -157,7 +157,8 @@
 
 .quiz_info_maxAttempts,
 .quiz_info_question,
-.quiz_info_quiz_results {
+.quiz_info_quiz_results,
+.quiz_info_examDuration {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -165,7 +166,8 @@
 }
 
 .quiz_info_question,
-.quiz_info_quiz_results {
+.quiz_info_quiz_results,
+.quiz_info_examDuration {
     margin-top: 10px;
 }
 
