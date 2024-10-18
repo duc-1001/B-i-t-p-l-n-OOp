@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 
 import java.util.*;
 
+import org.hibernate.validator.internal.util.ConcurrentReferenceHashMap.Option;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.demo.models.Classroom;
+import com.example.demo.models.Message;
 import com.example.demo.models.Question;
 import com.example.demo.models.Quiz;
 import com.example.demo.models.Quiz.ScoreType;
@@ -26,6 +28,7 @@ import com.example.demo.models.QuizStudent;
 import com.example.demo.models.User;
 import com.example.demo.models.UserRegistrationDto;
 import com.example.demo.respositoris.ClassroomRepository;
+import com.example.demo.respositoris.MessageRepository;
 import com.example.demo.respositoris.QuestionRepository;
 import com.example.demo.respositoris.QuizRepository;
 import com.example.demo.respositoris.QuizStudentRepository;
@@ -45,6 +48,8 @@ public class ClassController {
     private QuestionRepository questionRepository;
     @Autowired
     private QuizStudentRepository quizStudentRepository;
+    @Autowired
+    private MessageRepository messageRepository;
 
     @GetMapping("create")
     public String createClassroom(ModelMap modelMap) {
@@ -271,13 +276,13 @@ public class ClassController {
                 Optional<User> optionalStudent = userRepository.findById(studentId);
                 optionalStudent.ifPresent(students::add);
             }
-            Map<String,Integer> ds = new LinkedHashMap<>();
-            for(User user:students){
+            Map<String, Integer> ds = new LinkedHashMap<>();
+            for (User user : students) {
                 ds.put(user.getId(), 0);
-                for(Quiz quiz:quizs){
+                for (Quiz quiz : quizs) {
                     QuizStudent quizStudent = quizStudentRepository.findByStudentIdAndQuiz(user.getId(), quiz);
-                    if(quizStudent.getQuizResults().size()>0){
-                        ds.put(user.getId(), ds.get(user.getId())+1);
+                    if (quizStudent.getQuizResults().size() > 0) {
+                        ds.put(user.getId(), ds.get(user.getId()) + 1);
                     }
                 }
             }
@@ -335,7 +340,7 @@ public class ClassController {
                             scores.put(quizStudent.getId(), highestScore);
                         }
                     }
-                    modelMap.addAttribute("teacher",optionalTeacher.get());
+                    modelMap.addAttribute("teacher", optionalTeacher.get());
                     modelMap.addAttribute("quizStudents", quizStudents);
                     modelMap.addAttribute("scores", scores);
                     modelMap.addAttribute("room", room);
@@ -565,4 +570,49 @@ public class ClassController {
         return "redirect:/classroom/" + id + "/homework/list";
     }
 
+    @GetMapping("{id}/chat")
+    public String chatApp(@PathVariable("id") String id, ModelMap modelMap) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            String username = authentication.getName();
+            User currentUser = userRepository.findByEmail(username);
+            Optional<Classroom> optionalClassroom = classroomRepository.findById(id);
+            if (optionalClassroom.isPresent()) {
+                Classroom classroom = optionalClassroom.get();
+                if(currentUser.getRole().equals("student")){
+                    if (classroom.getStudentIds().contains(currentUser.getId())) {
+                        Optional<User> optionalTeacher = userRepository.findById(classroom.getTeacherId());
+                        List<Message> messages = messageRepository.findByClassroomId(classroom.getId());
+                        System.out.println(messages.size());
+                        optionalTeacher.ifPresent(teacher->modelMap.addAttribute("teacher",teacher));
+                        modelMap.addAttribute("room", classroom);
+                        modelMap.addAttribute("messages", messages);
+                        return "chatApp";
+                    } else {
+                        modelMap.addAttribute("errorText", "Bạn chưa tham gia vào lớp học này.");
+                        return "errorMaxAttempt";
+                    }
+                }
+                else{
+                    if (classroom.getTeacherId().equals(currentUser.getId())) {
+                        Optional<User> optionalTeacher = userRepository.findById(classroom.getTeacherId());
+                        List<Message> messages = messageRepository.findByClassroomId(classroom.getId());
+                        System.out.println(messages.size());
+                        optionalTeacher.ifPresent(teacher->modelMap.addAttribute("teacher",teacher));
+                        modelMap.addAttribute("room", classroom);
+                        modelMap.addAttribute("messages", messages);
+                        return "chatApp";
+                    } else {
+                        modelMap.addAttribute("errorText", "Bạn chưa tham gia vào lớp học này.");
+                        return "errorMaxAttempt";
+                    }
+                }
+            } else {
+                modelMap.addAttribute("errorText", "Không tìm thấy lớp học.");
+                return "errorMaxAttempt";
+            }
+        } else {
+            return "redirect:/login";
+        }
+    }
 }

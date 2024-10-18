@@ -4,7 +4,7 @@
 }
 
 .container_sidebar {
-    width: 250px;
+    width: 350px;
     height: calc(100vh - 60px);
     background: white;
     border-right: 1px solid #aaa;
@@ -20,7 +20,7 @@
 }
 
 .container_content {
-    width: calc(100vw - 250px);
+    width: calc(100vw - 350px);
 }
 
 .container_sidebar_option {

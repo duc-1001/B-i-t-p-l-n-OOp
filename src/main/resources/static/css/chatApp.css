@@ -1,0 +1,119 @@
+.container_chat {
+    width: calc(100vw - 350px);
+    height: calc(100vh - 60px);
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+}
+
+.box_send_conntainer {
+    width: 100%;
+    padding: 10px;
+}
+
+.list_message {
+    background-color: white;
+    max-height: calc(100vh - 60px - 55px);
+    overflow-y: auto;
+    width: 100%;
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.message{
+    display: flex;
+    align-items: end;
+    gap: 10px;
+    position: relative;
+}
+
+.message .message_content{
+    background-color: #f0f0f0; /* Màu nền */
+    padding: 8px 10px; /* Khoảng cách bên trong */
+    border-radius: 20px; /* Bo tròn các góc */
+    max-width: min(400px, 60%); /* Giới hạn chiều rộng */
+    overflow-wrap: break-word; /* Chia từ dài */
+    
+    /* Thêm thuộc tính để đảm bảo không làm rối layout */
+    overflow: hidden; /* Ẩn phần nội dung bị tràn */
+    box-sizing: border-box; 
+}
+
+.message img{
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #ccc;
+}
+
+.message small{
+    position: absolute;
+    left: 50px;
+    transform: translateY(-36px);
+}
+
+.message.sender{
+    justify-content: end;
+}
+
+.message.sender img{
+    display: none;
+}
+
+.message.sender .message_content{
+    background-color: #ff0033;
+    color: white;
+}
+
+.box_send_message {
+    width: 100%;
+    display: flex;
+    align-items: end;
+    gap: 10px;
+}
+
+.input_message_div {
+    width: 100%;
+    padding:8px 15px;
+    border-radius: 20px;
+    background-color: #f0f2f5;
+}
+
+.input_message {
+    width: 100%;
+    field-sizing: content;
+    resize: none;
+    border: none;
+    outline: none;
+    max-height: 200px;
+    overflow-y: auto;
+    font-size: 16px;
+    background-color: transparent;
+    transform: translateY(2px);
+}
+
+#btn_sender,
+#btn_emoji {
+    color: #ff0033;
+    transform: translateY(-7px);
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.opacity{
+    opacity: 0;
+    visibility: hidden;
+}
+
+.mt{
+    margin-top: 10px;
+}
+
+.emoji-picker{
+    position: absolute;
+    bottom: 60px;
+    left: 380px;
+}

@@ -22,5 +22,21 @@
             <i class="fa-regular fa-file-lines"></i>
             <div>Bài tập</div>
         </a>
+        <a class="container_sidebar_item" th:href="@{../../../classroom/{id}/chat(id=${room.id})}"
+            data-href="/classroom/${room.id}/chat/">
+            <i class="fa-brands fa-facebook-messenger"></i>
+            <div>Nhắn tin</div>
+        </a>
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const currentPath = window.location.pathname.split('/')[3];
+            document.querySelectorAll('.container_sidebar_item').forEach(item => {
+                const href = item.getAttribute('data-href').split('/')[3];
+                if (currentPath.includes(href)) {
+                    item.classList.add('active');
+                }
+            });
+        });
+    </script>
 </div>

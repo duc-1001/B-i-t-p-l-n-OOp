@@ -113,7 +113,7 @@
         const quizId = window.location.pathname.split('/')[2];
         const quizResultId = document.querySelector('input[name="quizResultId"]').value;
         const form = document.querySelector(".container");
-        
+
         listAnswer.forEach((label, index) => {
             label.addEventListener('click', function () {
                 const answers = this.closest('.answers');
@@ -193,18 +193,22 @@
             }
         }
 
+        const submitQuiz = function() {
+            if (totalSeconds >= examDuration * 60) {
+                clearInterval(interval);
+                alert("Thời gian làm bài đã hết. Bài thi sẽ được tự động nộp.");
+                form.submit()
+                return;
+            }
+        }
+
+        submitQuiz()
         showTime();
         const interval = setInterval(() => {
             totalSeconds++;
             if (isExamDuration) {
-                if (totalSeconds >= examDuration * 60) { 
-                    clearInterval(interval);
-                    alert("Thời gian làm bài đã hết. Bài thi sẽ được tự động nộp."); 
-                    form.submit() 
-                    return;
-                }
+                submitQuiz()
             }
-
             showTime()
             throttledSendData(totalSeconds);
         }, 1000);

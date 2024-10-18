@@ -33,7 +33,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests()
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/login", "/register").permitAll()
-                .requestMatchers("/profileUser/update").authenticated()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()

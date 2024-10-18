@@ -70,19 +70,6 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const currentPath = window.location.pathname.split('/')[3];
-            document.querySelectorAll('.container_sidebar_item').forEach(item => {
-                const href = item.getAttribute('data-href').split('/')[3];
-                if (currentPath.includes(href)) {
-                    item.classList.add('active');
-                }
-            });
-        });
-    </script>
-
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
             const quizItems = document.querySelectorAll('.quiz_item');
             const quizInfoTitle = document.querySelector('.quiz_info_title');
             const quizInfoMaxAttempts = document.querySelector('.quiz_info_maxAttempts b');

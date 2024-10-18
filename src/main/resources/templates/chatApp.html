@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Project Java</title>
+    <link th:href="@{/css/styles.css}" rel="stylesheet" />
+    <link th:href="@{/css/header.css}" rel="stylesheet" />
+    <link th:href="@{/css/classroom.css}" rel="stylesheet" />
+    <link th:href="@{/css/chatApp.css}" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <div th:insert="~{fragments/header :: header}"></div>
+    <div class="container">
+        <div th:if="${currentUser.role == 'teacher'}">
+            <div th:insert="~{fragments/sidebar :: sidebar}"></div>
+        </div>
+        <div th:if="${currentUser.role == 'student'}">
+            <div th:insert="~{fragments/sidebarStudent :: sidebarStudent}"></div>
+        </div>
+        <div class="container_chat">
+            <div class="list_message" id="messageList">
+                <div th:if="${#lists.isEmpty(messages)}" class="no-messages">
+                    <p>No messages to display.</p>
+                </div>
+                <div th:each="message, iterStat : ${messages}" class="message"
+                    th:classappend="${message.sender.id} == ${currentUser.id} ? 'sender' : ''"
+                    th:data-userId="${message.sender.id}">
+                    <small th:text="${message.sender.username}" th:classappend="${(iterStat.index > 0 && message.sender.id == messages.get(iterStat.index - 1).sender.id) ||message.sender.id==currentUser.id ? 'opacity' : ''}"></small>
+                    <img th:src="@{${message.sender.avatarUrl}}" alt="Avatar"
+                        th:classappend="${iterStat.index > 0 && message.sender.id == messages.get(iterStat.index - 1).sender.id ? 'opacity' : ''}" />
+                    <div class="message_content" th:utext="${message.content}">
+                        <!-- Nội dung tin nhắn sẽ hiển thị ở đây -->
+                    </div>
+                </div>
+            </div>
+            <div class="box_send_conntainer">
+                <div class="box_send_message">
+                    <i class="fa-solid fa-face-smile" id="btn_emoji"></i>
+                    <div class="input_message_div">
+                        <textarea id="messageInput" class="input_message" placeholder="Aa..."></textarea>
+                    </div>
+                    <i class="fa-solid fa-paper-plane" id="btn_sender"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@3.0.3/dist/index.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const picker =new EmojiButton();
+        const id = "[[${currentUser.getId()}]]";
+        const listMessage = document.querySelector("#messageList");
+        const messageInput = document.querySelector("#messageInput");
+        const sendButton = document.querySelector("#btn_sender");
+        let stompClient = null;
+
+        document.querySelector("#btn_emoji").addEventListener('click',()=>{
+            picker.togglePicker();
+        })
+
+        picker.on('emoji', emoji => {
+            messageInput.value += emoji;
+            scrollToEnd();
+        });
+
+
+        const scrollToEnd = function () {
+            listMessage.scrollTop = listMessage.scrollHeight;
+        };
+
+        function connect() {
+            if (id) {
+                const classroomId = window.location.pathname.split("/")[2];
+                const socket = new SockJS('/ws');
+                stompClient = Stomp.over(socket);
+                stompClient.connect({}, onConnected, onError);
+            }
+        }
+
+        function onConnected() {
+            const classroomId = window.location.pathname.split("/")[2];
+            stompClient.subscribe('/topic/classroom/' + classroomId + '/public', onMessageReceived);
+            stompClient.send("/app/chat/" + classroomId + "/addUser",
+                {},
+                JSON.stringify({ senderId: id, type: 'JOIN' })
+            );
+            scrollToEnd();
+        }
+
+        function onError(error) {
+            console.error('Lỗi kết nối WebSocket:', error);
+        }
+
+        function sendMessage() {
+            const messageContent = messageInput.value.trim();
+            if (messageContent && stompClient) {
+                const classroomId = window.location.pathname.split("/")[2];
+                const chatMessage = {
+                    senderId: id,
+                    content: messageContent,
+                    type: 'CHAT'
+                };
+                stompClient.send("/app/chat/" + classroomId + "/sendMessage", {}, JSON.stringify(chatMessage));
+                messageInput.value = '';
+            }
+        }
+
+        messageInput.addEventListener("keydown", function (event) {
+            if (event.key === "Enter" && !event.shiftKey) {
+                sendMessage();
+                event.preventDefault();
+            }
+        });
+
+        function onMessageReceived(payload) {
+            const message = JSON.parse(payload.body);
+            if (message.type === "JOIN") {
+
+            }
+            else if (message.type === "LEAVE") {
+
+            }
+            else {
+                const messageElement = document.createElement('div');
+                messageElement.className = `message ${message.sender.id == id ? 'sender' : ''}`;
+                messageElement.setAttribute('data-userId', message.sender.id); // Add data-userId attribute
+
+                messageElement.innerHTML = `
+                                            <img src="${message.sender.avatarUrl}" />
+                                            <div class="message_content">
+                                                ${message.content}
+                                            </div>
+                                        `;
+
+                // Insert the new message into the list
+                listMessage.insertAdjacentElement('beforeend', messageElement);
+
+                // Check if the last message is from the same user
+                const messages = document.querySelectorAll('.message');
+                const messageElementEnd = messages[messages.length - 1];
+                if (messages.length > 1 && messageElementEnd.getAttribute("data-userId") == messages[messages.length - 2].getAttribute("data-userId")) {
+                    messageElement.querySelector('img').classList.add("opacity");
+                }
+
+            }
+
+            scrollToEnd();
+        }
+
+
+        sendButton.addEventListener('click', function (event) {
+            sendMessage();
+            event.preventDefault();
+        });
+        connect();
+    });
+</script>
+
+</html>

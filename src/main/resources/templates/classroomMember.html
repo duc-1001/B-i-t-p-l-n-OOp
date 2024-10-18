@@ -47,18 +47,6 @@
     </div>
 </body>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const currentPath = window.location.pathname.split('/')[3];
-        console.log(currentPath);
-        document.querySelectorAll('.container_sidebar_item').forEach(item => {
-            const href = item.getAttribute('data-href').split('/')[3];
-            console.log(href);
-            if (currentPath.includes(href)) {
-                item.classList.add('active');
-            }
-        });
-    });
-</script>
+
 
 </html>
