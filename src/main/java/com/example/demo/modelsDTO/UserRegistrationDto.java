@@ -1,4 +1,4 @@
-package com.example.demo.models;
+package com.example.demo.modelsDTO;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;

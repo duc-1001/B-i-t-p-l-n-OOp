@@ -78,13 +78,16 @@
                 </div>
             </div>
             <div class="quiz_info">
-                <div class="quiz_info_correct_answer_count" th:with="index=${q}"
+                <div class="quiz_info_correct_answer_count"
                     th:text="${quizResult.correctAnswersCount} + ' / ' + ${questions.size()}"></div>
                 <div class="quiz_info_description">
                     <div class="quiz_info_time">
                         <div>Thời gian</div>
-                        <div th:with="index=${q}" th:attr="time = ${quizResult.attemptTime}"
-                            th:text="${quizResult.attemptTime}">12 giây</div>
+                        <div th:text="${quizResult.convertSecondsToTimeFormat}">12 giây</div>
+                    </div>
+                    <div class="quiz_info_time">
+                        <div>Thời gian nộp bài</div>
+                        <div th:text="${quizResult.getSubmitDateFormat}">12 giây</div>
                     </div>
                     <div class="quiz_info_correct_answer">
                         <div class="first">
@@ -93,7 +96,7 @@
                                 Số câu đúng
                             </div>
                         </div>
-                        <div class="end" th:with="index=${q}" th:text="${quizResult.correctAnswersCount}">12
+                        <div class="end" th:text="${quizResult.correctAnswersCount}">12
                             giây</div>
                     </div>
                     <div class="quiz_info_wrong_answer">
@@ -127,9 +130,10 @@
                         <th class="th_2">Chọn</th>
                         <th class="th_3">Đáp án đúng</th>
                     </tr>
-                    <tr  th:each="answer,answerIndex : ${answers}">
+                    <tr th:each="answer,answerIndex : ${answers}">
                         <td th:if="${quiz.showAnswer} == true ">
-                            <i th:classappend="${answer}==${correctAnswers[answerIndex.index]} ? 'correct':'wrong' " class="fa-solid fa-circle"></i>
+                            <i th:classappend="${answer}==${correctAnswers[answerIndex.index]} ? 'correct':'wrong' "
+                                class="fa-solid fa-circle"></i>
                         </td>
                         <td th:if="${quiz.showAnswer} == false">
                             <i th:classappend="${answer}=='' ? 'unanswered':'sheet' " class="fa-solid fa-circle"></i>
@@ -138,33 +142,12 @@
                             <div th:text="${answerIndex.count}"></div>
                         </td>
                         <td class="td_2" th:text="${answer} != '' ? ${answer} : '-'"></td>
-                        <td class="td_3" th:text="${quiz.showAnswer} == true ? ${correctAnswers[answerIndex.index]} :'-'" >-</td>
+                        <td class="td_3"
+                            th:text="${quiz.showAnswer} == true ? ${correctAnswers[answerIndex.index]} :'-'">-</td>
                     </tr>
                 </table>
             </div>
         </div>
 </body>
-
-<script>
-    const showTime = document.querySelector('div[time]')
-    const totalSeconds = JSON.parse(showTime.getAttribute('time'))
-
-    function displayTime(totalSeconds) {
-        const timeDiv = document.querySelector('.time');
-        const hours = Math.floor(totalSeconds / 3600)
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-        if (hours > 0) {
-            showTime.textContent = `${hours} giờ ${minutes} phút`;
-        }
-        else if (minutes > 0) {
-            showTime.textContent = `${minutes} phút ${seconds}s`;
-        }
-        else {
-            showTime.textContent = `${seconds}s`;
-        }
-    }
-    displayTime(totalSeconds)
-</script>
 
 </html>

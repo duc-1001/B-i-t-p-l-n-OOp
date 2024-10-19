@@ -22,7 +22,7 @@
             <div class="list_quiz_container">
                 <div class="list_quiz">
                     <div th:each="quizStudent, iterStat : ${quizStudents}" class="quiz_item"
-                        th:classappend="${iterStat.index == 0} ? ' active' : ''" th:data-room-id="${room.id}"
+                        th:classappend="${iterStat.index == 0} ? ' active' : ''" th:data-room-id="${classroom.id}"
                         th:data-quiz-id="${quizStudent.quiz.id}" th:data-title="${quizStudent.quiz.title}"
                         th:data-maxAttempts="${quizStudent.quiz.maxAttempts}"
                         th:data-questions-size="${#lists.size(quizStudent.quiz.questions)}"
@@ -41,9 +41,9 @@
                                     <div class="line"></div>
                                 </div>
                                 <small class="error-message"
-                                    th:if="${quizStudent.quizResults} == null or ${quizStudent.quizResults.size()}==0">chưa
+                                    th:if="${ds[quizStudent.id]} == null">chưa
                                     làm</small>
-                                <small th:if="${quizStudent.quizResults} != null and ${quizStudent.quizResults.size()}>0"
+                                <small th:if="${ds[quizStudent.id]} != null"
                                     th:text="${scores[quizStudent.id]} +'/10'"
                                     th:data-score="${scores[quizStudent.id]}"></small>
                             </div>
@@ -76,7 +76,7 @@
                         th:text="${quizStudents[0].getIsDoing()} ? 'Tiếp tục làm bài' : 'Bắt đầu làm bài'">Bắt đầu làm
                         bài</a>
 
-                    <a th:href="@{../../../quiz/{quizId}/detal(q=${quizStudents[0].quizResults.get(0).getId()}, quizId=${quizStudents[0].quiz.id})}"
+                    <a th:href="${quizStudents[0].getIsResultQuiz()} ? @{../../../quiz/{quizId}/detal(q=${quizStudents[0].quizResults.get(0).getId()}, quizId=${quizStudents[0].quiz.id})}:''"
                         class="result_quiz"
                         th:classappend="${quizStudents[0].getIsResultQuiz()} == true ? '' :'hidden'">
                         Chi tiết
@@ -90,7 +90,9 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () { 
+            
             const quizItems = document.querySelectorAll('.quiz_item');
+            console.log(quizItems);
             const quizInfoTitle = document.querySelector('.quiz_info_title');
             const quizInfoMaxAttempts = document.querySelector('.quiz_info_maxAttempts b');
             const quizInfoQuestions = document.querySelector('.quiz_info_question b');
@@ -144,11 +146,15 @@
                         quizInfoExamDuration.innerHTML = 'Không có';
                     }
 
-                    if (quizResults && resultQuizLink && isQuizResults === 'true') {
-                        resultQuizLink.href = `../../../quiz/${quizId}/detal?q=${this.getAttribute('data-quiz-linkResult')}`;
-                        resultQuizLink.style.display = 'inline-block';
+                    if (quizResults && isQuizResults === 'true') {
+                        if(resultQuizLink){
+                            resultQuizLink.href = `../../../quiz/${quizId}/detal?q=${this.getAttribute('data-quiz-linkResult')}`;
+                            resultQuizLink.style.display = 'inline-block';
+                        }
                     } else if (resultQuizLink && isQuizResults === 'false') {
-                        resultQuizLink.style.display = 'none';
+                        if(resultQuizLink){
+                            resultQuizLink.style.display = 'none';
+                        }
                     }
                     document.querySelector('.quiz_info').style.display = 'block';
                 });

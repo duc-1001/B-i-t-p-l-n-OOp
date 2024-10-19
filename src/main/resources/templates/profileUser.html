@@ -18,17 +18,17 @@
         <form action="/profile/update" method="post" enctype="multipart/form-data">
             <div class="container-form">
                     <div class="avatar" for="file">
-                        <img th:src="${currentUser.avatarUrl} + '?v=' + ${#dates.format(#dates.createNow(), 'yyyyMMddHHmmss')}"
+                        <img th:src="${user.avatarUrl} + '?v=' + ${#dates.format(#dates.createNow(), 'yyyyMMddHHmmss')}"
                             alt="Avatar">
                             <label for="file">Thay ảnh đại diện</label>
                     </div>
                 <div class="infor_user">
                     <input type="file" id="file" name="file" hidden accept="image/*">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                    <input hidden type="text" id="id" name="id" th:value="${currentUser.id}">
+                    <input hidden type="text" id="id" name="id" th:value="${user.id}">
 
                     <label>Email người dùng:</label>
-                    <input type="text" id="enail" name="email" th:value="${currentUser.email}" readonly>
+                    <input type="text" id="enail" name="email" th:value="${user.email}" readonly>
 
                     <div>
                         <label for="password">Mật khẩu:</label>
@@ -41,10 +41,10 @@
                     </div>
 
                     <label>Chức vụ người dùng:</label>
-                    <input type="text" id="role" name="role" th:value="${currentUser.role}" readonly>
+                    <input type="text" id="role" name="role" th:value="${user.role}" readonly>
 
                     <label for="username">Tên người dùng:</label>
-                    <input type="text" id="username" name="username" th:value="${currentUser.username}"
+                    <input type="text" id="username" name="username" th:value="${user.username}"
                         placeholder="Username" required>
                 </div>
             </div>

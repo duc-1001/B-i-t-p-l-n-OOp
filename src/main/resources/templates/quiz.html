@@ -101,18 +101,62 @@
 </body>
 
 <script>
-    let totalSeconds = [[${ quizResult.getAttemptTime() }]];
-    let examDuration = [[${ quiz.getExamDuration() }]];
-    const isExamDuration = [[${ quiz.getIsExamDuration() }]];
-
-
-
+    
+    
     document.addEventListener("DOMContentLoaded", function () {
         const listAnswer = document.querySelectorAll(".answer label");
         const items = document.querySelectorAll(".item");
         const quizId = window.location.pathname.split('/')[2];
         const quizResultId = document.querySelector('input[name="quizResultId"]').value;
         const form = document.querySelector(".container");
+        
+        let examDuration = [[${ quiz.getExamDuration() }]];
+        const isExamDuration = [[${ quiz.getIsExamDuration() }]];
+        
+        let dateStartStr = "[[${ quizResult.getStartDate() }]]";
+        dateStartStr = dateStartStr.replace("ICT", "GMT+0700");
+        
+        let dateEndStr = "[[${ quizResult.getSubmitDate() }]]";
+        dateEndStr = dateEndStr.replace("ICT", "GMT+0700");
+    
+        console.log(dateStartStr,'        ',dateEndStr);
+        
+        
+        const startDate = new Date(dateStartStr)
+        const endDate = new Date(dateEndStr)
+        
+        
+        function calculateTimeDifference(date1, date2) {
+            let timeDiff = Math.abs(date2.getTime() - date1.getTime());
+            let days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+            timeDiff -= days * (1000 * 60 * 60 * 24);
+            
+            let hours = Math.floor(timeDiff / (1000 * 60 * 60));
+            timeDiff -= hours * (1000 * 60 * 60);
+            
+            let minutes = Math.floor(timeDiff / (1000 * 60));
+            timeDiff -= minutes * (1000 * 60);
+            
+            let seconds = Math.floor(timeDiff / 1000);
+            
+            return {
+                days: days,
+                hours: hours,
+                minutes: minutes,
+                seconds: seconds
+            };
+        }
+        
+        function calculateTimeDifferenceInSeconds(date1, date2) {
+            let timeDiff = Math.abs(date2.getTime() - date1.getTime());
+            let secondsDiff = Math.floor(timeDiff / 1000);
+            return secondsDiff;
+        }
+        
+        let totalSeconds = calculateTimeDifferenceInSeconds(startDate, endDate);
+    
+        console.log(calculateTimeDifference(startDate, endDate));
+        console.log(calculateTimeDifferenceInSeconds(startDate, endDate));
 
         listAnswer.forEach((label, index) => {
             label.addEventListener('click', function () {
@@ -193,16 +237,6 @@
             }
         }
 
-        const submitQuiz = function() {
-            if (totalSeconds >= examDuration * 60) {
-                clearInterval(interval);
-                alert("Thời gian làm bài đã hết. Bài thi sẽ được tự động nộp.");
-                form.submit()
-                return;
-            }
-        }
-
-        submitQuiz()
         showTime();
         const interval = setInterval(() => {
             totalSeconds++;
@@ -212,6 +246,16 @@
             showTime()
             throttledSendData(totalSeconds);
         }, 1000);
+
+        const submitQuiz = function () {
+            if (totalSeconds >= examDuration * 60) {
+                clearInterval(interval);
+                alert("Thời gian làm bài đã hết. Bài thi sẽ được tự động nộp.");
+                form.submit()
+                return;
+            }
+        }
+
 
         window.addEventListener('beforeunload', async (event) => {
             if (quizId) {

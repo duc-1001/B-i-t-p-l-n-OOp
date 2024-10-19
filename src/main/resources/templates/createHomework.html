@@ -20,7 +20,7 @@
         <!-- Số lần làm bài -->
         <label class="maxAttempts_quiz" for="maxAttempts">Số lần làm bài tối đa:</label>
         <input class="input_maxAttempts_quiz" type="number" id="maxAttempts" name="maxAttempts" min="1" max="20"
-            placeholder="Số lần làm bài tối đa" required>
+            placeholder="Số lần làm bài tối đa">
         <br>
         <!--Thời gian làm-->
         <input type="checkbox" id="examDurationCheckBox" name="examDurationCheckBox" hidden>
@@ -36,10 +36,10 @@
         </div>
         <div class="examDuration_input">
             <input class="input_examDuration_quiz" type="number" id="examDuration" name="examDuration" min="1" max="300"
-            placeholder="Thời gian làm bài" required/>
+                placeholder="Thời gian làm bài" />
             <div class="examDuration_input_option">
                 <div class="time_item" data-value="30">
-                    30 phút                    
+                    30 phút
                 </div>
                 <div class="time_item" data-value="45">
                     45 phút
@@ -50,7 +50,7 @@
             </div>
         </div>
         <!--CHo xem đáp án-->
-        <input hidden class="input_showAnswer_quiz" type="checkbox" id="showAnswer" name="showAnswer"/>
+        <input hidden class="input_showAnswer_quiz" type="checkbox" id="showAnswer" name="showAnswer" />
         <div class="showAnswer">
             <div class="showAnswer_quiz" for="showAnswerCheckBox">Cho xem đáp án:</div>
             <label for="showAnswer">
@@ -116,8 +116,8 @@
 
     <script>
 
-        document.querySelectorAll(".time_item").forEach(e=>{
-            e.addEventListener("click",function(){
+        document.querySelectorAll(".time_item").forEach(e => {
+            e.addEventListener("click", function () {
                 console.log(this.getAttribute('data-value'));
                 document.querySelector('#examDuration').value = JSON.parse(this.getAttribute('data-value'))
             })
@@ -176,10 +176,12 @@
 
         function addDeleteFunctionality(questionElement) {
             const deleteBtn = questionElement.querySelector('.delete-question-btn');
-            deleteBtn.addEventListener('click', function () {
-                questionElement.remove();
-                updateQuestionIndexes();
-            });
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', function () {
+                    questionElement.remove();
+                    updateQuestionIndexes();
+                });
+            }
         }
 
         function updateQuestionIndexes() {

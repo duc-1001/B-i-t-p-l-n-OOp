@@ -27,7 +27,8 @@
                 <div th:each="message, iterStat : ${messages}" class="message"
                     th:classappend="${message.sender.id} == ${currentUser.id} ? 'sender' : ''"
                     th:data-userId="${message.sender.id}">
-                    <small th:text="${message.sender.username}" th:classappend="${(iterStat.index > 0 && message.sender.id == messages.get(iterStat.index - 1).sender.id) ||message.sender.id==currentUser.id ? 'opacity' : ''}"></small>
+                    <small th:text="${message.sender.username}"
+                        th:if="${(iterStat.index > 0 && message.sender.id == messages.get(iterStat.index - 1).sender.id) ||message.sender.id==currentUser.id} == false"></small>
                     <img th:src="@{${message.sender.avatarUrl}}" alt="Avatar"
                         th:classappend="${iterStat.index > 0 && message.sender.id == messages.get(iterStat.index - 1).sender.id ? 'opacity' : ''}" />
                     <div class="message_content" th:utext="${message.content}">
@@ -54,14 +55,14 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const picker =new EmojiButton();
+        const picker = new EmojiButton();
         const id = "[[${currentUser.getId()}]]";
         const listMessage = document.querySelector("#messageList");
         const messageInput = document.querySelector("#messageInput");
         const sendButton = document.querySelector("#btn_sender");
         let stompClient = null;
 
-        document.querySelector("#btn_emoji").addEventListener('click',()=>{
+        document.querySelector("#btn_emoji").addEventListener('click', () => {
             picker.togglePicker();
         })
 
@@ -133,6 +134,7 @@
                 messageElement.setAttribute('data-userId', message.sender.id); // Add data-userId attribute
 
                 messageElement.innerHTML = `
+                                            <small>${message.sender.username}</small>
                                             <img src="${message.sender.avatarUrl}" />
                                             <div class="message_content">
                                                 ${message.content}
@@ -147,6 +149,9 @@
                 const messageElementEnd = messages[messages.length - 1];
                 if (messages.length > 1 && messageElementEnd.getAttribute("data-userId") == messages[messages.length - 2].getAttribute("data-userId")) {
                     messageElement.querySelector('img').classList.add("opacity");
+                }
+                if (messages.length > 1 && messageElementEnd.getAttribute("data-userId") == messages[messages.length - 2].getAttribute("data-userId") || message.sender.id == id) {
+                    messageElement.querySelector('small').classList.add("hidden");
                 }
 
             }

@@ -17,7 +17,7 @@
         <div class="container_content">
             <div class="container_content_title">
                 Bài tập
-                <a class="btn_add_homework" th:href="@{../../../classroom/{id}/homework/add(id=${room.id})}"
+                <a class="btn_add_homework" th:href="@{../../../classroom/{id}/homework/add(id=${classroom.id})}"
                     th:if="${currentUser.role == 'teacher'}">
                     <i class="fa-solid fa-plus"></i>
                     Tạo bài tập
@@ -27,7 +27,7 @@
             <div class="list_quiz_container">
                 <div class="list_quiz">
                     <div th:each="quiz, iterStat : ${quizzes}" class="quiz_item"
-                        th:classappend="${iterStat.index == 0} ? ' active' : ''" th:data-room-id="${room.id}"
+                        th:classappend="${iterStat.index == 0} ? ' active' : ''" th:data-room-id="${classroom.id}"
                         th:data-quiz-id="${quiz.id}" th:data-title="${quiz.title}"
                         th:data-maxAttempts="${quiz.maxAttempts}"
                         th:data-questions-size="${#lists.size(quiz.questions)}"
@@ -35,7 +35,7 @@
                         <img src="/images/pngegg.png" alt="">
                         <div>
                             <div th:text="${quiz.title}"></div>
-                            <small th:text=" ${count[quiz.id]} + '/' + ${room.studentIds.size()} + ' đã làm'"></small>
+                            <small th:text=" ${count[quiz.id]} + '/' + ${classroom.studentIds.size()} + ' đã làm'"></small>
                         </div>
                     </div>
                 </div>
@@ -56,7 +56,7 @@
                             data</b>
                     </div>
                     <div class="line"></div>
-                    <a th:href="@{../../{id}/homework/edit/{quizId}(id=${room.id},quizId=${quizzes[0].id})}"
+                    <a th:href="@{../../{id}/homework/edit/{quizId}(id=${classroom.id},quizId=${quizzes[0].id})}"
                         class="edit_quiz" th:if="${currentUser.role == 'teacher'}">Chỉnh sửa bài tập</a>
                     <a th:href="@{../../../quiz/{quizId}/detal(quizId=${quizzes[0].id})}"
                         class="result_quiz">

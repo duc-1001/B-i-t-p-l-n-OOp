@@ -1,23 +1,23 @@
 <div class="container_sidebar" th:fragment="sidebar">
     <div class="room_info">
-        <div class="room_info_name" th:text="${room.name}">room name</div>
-        <small th:text="'Mã lớp: ' + ${room.id}">MMMMMM</small>
+        <div class="room_info_name" th:text="${classroom.name}">room name</div>
+        <small th:text="'Mã lớp: ' + ${classroom.id}">MMMMMM</small>
     </div>
     <div class="line"></div>
     <small>Danh mục</small>
     <div class="container_sidebar_option">
-        <a class="container_sidebar_item" th:href="@{../../../classroom/{id}/member(id=${room.id})}"
-            data-href="/classroom/${room.id}/member/">
+        <a class="container_sidebar_item" th:href="@{../../../classroom/{id}/member(id=${classroom.id})}"
+            data-href="/classroom/${classroom.id}/member/">
             <i class="fa-regular fa-user"></i>
             <div>Thành viên</div>
         </a>
-        <a class="container_sidebar_item" th:href="@{../../../classroom/{id}/homework/list(id=${room.id})}"
-            data-href="/classroom/${room.id}/homework/list/">
+        <a class="container_sidebar_item" th:href="@{../../../classroom/{id}/homework/list(id=${classroom.id})}"
+            data-href="/classroom/${classroom.id}/homework/list/">
             <i class="fa-regular fa-file-lines"></i>
             <div>Bài tập</div>
         </a>
-        <a class="container_sidebar_item" th:href="@{../../../classroom/{id}/chat(id=${room.id})}"
-            data-href="/classroom/${room.id}/chat/">
+        <a class="container_sidebar_item" th:href="@{../../../classroom/{id}/chat(id=${classroom.id})}"
+            data-href="/classroom/${classroom.id}/chat/">
             <i class="fa-brands fa-facebook-messenger"></i>
             <div>Nhắn tin</div>
         </a>

@@ -23,10 +23,10 @@ import com.example.demo.models.Message;
 import com.example.demo.models.Question;
 import com.example.demo.models.Quiz;
 import com.example.demo.models.Quiz.ScoreType;
+import com.example.demo.modelsDTO.UserRegistrationDto;
 import com.example.demo.models.QuizResult;
 import com.example.demo.models.QuizStudent;
 import com.example.demo.models.User;
-import com.example.demo.models.UserRegistrationDto;
 import com.example.demo.respositoris.ClassroomRepository;
 import com.example.demo.respositoris.MessageRepository;
 import com.example.demo.respositoris.QuestionRepository;
@@ -267,11 +267,11 @@ public class ClassController {
     public String getMemberClassroom(ModelMap modelMap, @PathVariable("id") String id) {
         Optional<Classroom> optionalRoom = classroomRepository.findById(id);
         if (optionalRoom.isPresent()) {
-            Classroom room = optionalRoom.get();
-            List<String> studentIds = room.getStudentIds();
+            Classroom classroom = optionalRoom.get();
+            List<String> studentIds = classroom.getStudentIds();
             List<User> students = new ArrayList<>();
             List<Quiz> quizs = quizRepository.findByClassroom_Id(id);
-            Optional<User> optionalTeacher = userRepository.findById(room.getTeacherId());
+            Optional<User> optionalTeacher = userRepository.findById(classroom.getTeacherId());
             for (String studentId : studentIds) {
                 Optional<User> optionalStudent = userRepository.findById(studentId);
                 optionalStudent.ifPresent(students::add);
@@ -289,7 +289,7 @@ public class ClassController {
             optionalTeacher.ifPresent(teacher -> modelMap.addAttribute("teacher", teacher));
             modelMap.addAttribute("ds", ds);
             modelMap.addAttribute("students", students);
-            modelMap.addAttribute("room", room);
+            modelMap.addAttribute("classroom", classroom);
         }
         return "classroomMember";
     }
@@ -303,13 +303,15 @@ public class ClassController {
             if ("student".equals(currentUser.getRole())) {
                 Optional<Classroom> optionalRoom = classroomRepository.findById(id);
                 if (optionalRoom.isPresent()) {
-                    Classroom room = optionalRoom.get();
+                    Classroom classroom = optionalRoom.get();
                     List<QuizStudent> quizStudents = quizStudentRepository.findByClassroomIdAndStudentId(id,
                             currentUser.getId());
-                    Optional<User> optionalTeacher = userRepository.findById(room.getTeacherId());
+                    Optional<User> optionalTeacher = userRepository.findById(classroom.getTeacherId());
                     Map<String, Double> scores = new LinkedHashMap<>();
+                    Map<String,QuizResult> ds = new LinkedHashMap<>();
                     for (QuizStudent quizStudent : quizStudents) {
                         scores.put(quizStudent.getId(), 0.0);
+                        ds.put(quizStudent.getId(), null);
                         Quiz quiz = quizStudent.getQuiz();
                         if (quiz.getScoreType().name().equals("FIRST_ATTEMPT")) {
                             List<QuizResult> quizResults = quizStudent.getQuizResults();
@@ -317,6 +319,7 @@ public class ClassController {
                                 QuizResult quizResult = quizResults.get(0);
                                 if (quizResult.isCompleted()) {
                                     scores.put(quizStudent.getId(), quizResult.getScore());
+                                    ds.put(quizStudent.getId(), quizResult);
                                 }
                             }
                         } else if (quiz.getScoreType().name().equals("LAST_ATTEMPT")) {
@@ -325,6 +328,7 @@ public class ClassController {
                                 for (int i = quizResults.size() - 1; i >= 0; i--) {
                                     if (quizResults.get(i).isCompleted()) {
                                         scores.put(quizStudent.getId(), quizResults.get(i).getScore());
+                                        ds.put(quizStudent.getId(), quizResults.get(i));
                                         break;
                                     }
                                 }
@@ -332,31 +336,35 @@ public class ClassController {
                         } else if (quiz.getScoreType().name().equals("HIGHEST_SCORE")) {
                             List<QuizResult> quizResults = quizStudent.getQuizResults();
                             double highestScore = 0.0;
+                            QuizResult quizResultUser = null;
                             for (QuizResult quizResult : quizResults) {
                                 if (quizResult.isCompleted() && quizResult.getScore() > highestScore) {
                                     highestScore = quizResult.getScore();
+                                    quizResultUser = quizResult;
                                 }
                             }
                             scores.put(quizStudent.getId(), highestScore);
+                            ds.put(quizStudent.getId(), quizResultUser);
                         }
                     }
                     modelMap.addAttribute("teacher", optionalTeacher.get());
                     modelMap.addAttribute("quizStudents", quizStudents);
+                    modelMap.addAttribute("ds", ds);
                     modelMap.addAttribute("scores", scores);
-                    modelMap.addAttribute("room", room);
+                    modelMap.addAttribute("classroom", classroom);
                 }
                 return "classroomHomeworkStudent";
             } else {
                 Optional<Classroom> optionalRoom = classroomRepository.findById(id);
                 if (optionalRoom.isPresent()) {
-                    Classroom room = optionalRoom.get();
+                    Classroom classroom = optionalRoom.get();
                     List<Quiz> quizzes = quizRepository.findByClassroom_Id(id);
                     Map<String, Integer> count = new LinkedHashMap<>();
                     for (Quiz quiz : quizzes) {
                         List<QuizStudent> quizStudents = quizStudentRepository.findByClassroomIdAndQuiz(id, quiz);
                         count.put(quiz.getId(), 0);
                         for (QuizStudent quizStudent : quizStudents) {
-                            if (quizStudent.getQuizResults().size() > 0) {
+                            if (quizStudent.getQuizResults().size() > 0  && quizStudent.getQuizResults().get(0).isCompleted()) {
                                 count.put(quiz.getId(), count.get(quiz.getId()) + 1);
                             }
                         }
@@ -364,7 +372,7 @@ public class ClassController {
 
                     modelMap.addAttribute("quizzes", quizzes);
                     modelMap.addAttribute("count", count);
-                    modelMap.addAttribute("room", room);
+                    modelMap.addAttribute("classroom", classroom);
                 }
                 return "classroomHomework";
             }
@@ -403,18 +411,18 @@ public class ClassController {
 
     @GetMapping("{id}/homework/add")
     public String createHomework(ModelMap modelMap, @PathVariable("id") String id) {
-        modelMap.addAttribute("quiz", new Quiz());
+        // modelMap.addAttribute("quiz", new Quiz());
         modelMap.addAttribute("id", id);
         return "createHomework";
     }
 
     @PostMapping("{id}/homework/add")
-    public String createQuiz(@ModelAttribute Quiz quiz,
+    public String createQuiz(
             @RequestParam Map<String, String> params,
             @PathVariable("id") String id) {
-
         Optional<Classroom> optionalRoom = classroomRepository.findById(id);
         System.out.println(params);
+        Quiz quiz = new Quiz();
         if (optionalRoom.isPresent()) {
             Classroom room = optionalRoom.get();
             List<Question> questionList = new ArrayList<>();
@@ -441,7 +449,10 @@ public class ClassController {
             room.setExercise(exerciseQuiz + 1);
             classroomRepository.save(room);
 
+
             quiz.setId(null);
+            quiz.setTitle(params.get("title"));
+            quiz.setMaxAttempts(Integer.parseInt(params.get("maxAttempts")));
             quiz.setClassroom(room);
             quiz.setQuestions(questionList);
 
@@ -496,7 +507,6 @@ public class ClassController {
     @PostMapping("{id}/homework/edit/{quizId}")
     public String editQuiz(@PathVariable("id") String id,
             @PathVariable("quizId") String quizId,
-            @ModelAttribute Quiz quiz,
             @RequestParam Map<String, String> params) {
 
         Optional<Classroom> optionalRoom = classroomRepository.findById(id);
@@ -506,8 +516,8 @@ public class ClassController {
             Classroom room = optionalRoom.get();
             Quiz existingQuiz = optionalQuiz.get();
 
-            existingQuiz.setTitle(quiz.getTitle());
-            existingQuiz.setMaxAttempts(quiz.getMaxAttempts());
+            existingQuiz.setTitle(params.get("title"));
+            existingQuiz.setMaxAttempts(Integer.parseInt(params.get("maxAttempts")));
 
             if (params.get("showAnswer") != null) {
                 existingQuiz.setShowAnswer(true);
@@ -585,7 +595,7 @@ public class ClassController {
                         List<Message> messages = messageRepository.findByClassroomId(classroom.getId());
                         System.out.println(messages.size());
                         optionalTeacher.ifPresent(teacher->modelMap.addAttribute("teacher",teacher));
-                        modelMap.addAttribute("room", classroom);
+                        modelMap.addAttribute("classroom", classroom);
                         modelMap.addAttribute("messages", messages);
                         return "chatApp";
                     } else {
@@ -599,7 +609,7 @@ public class ClassController {
                         List<Message> messages = messageRepository.findByClassroomId(classroom.getId());
                         System.out.println(messages.size());
                         optionalTeacher.ifPresent(teacher->modelMap.addAttribute("teacher",teacher));
-                        modelMap.addAttribute("room", classroom);
+                        modelMap.addAttribute("classroom", classroom);
                         modelMap.addAttribute("messages", messages);
                         return "chatApp";
                     } else {

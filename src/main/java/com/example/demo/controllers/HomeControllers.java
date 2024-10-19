@@ -14,7 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.demo.models.Classroom;
 import com.example.demo.models.User;
-import com.example.demo.models.UserRegistrationDto;
+import com.example.demo.modelsDTO.UserRegistrationDto;
 import com.example.demo.respositoris.ClassroomRepository;
 import com.example.demo.respositoris.UserRepository;
 

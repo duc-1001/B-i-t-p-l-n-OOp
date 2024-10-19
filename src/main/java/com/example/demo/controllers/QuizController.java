@@ -8,7 +8,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +19,7 @@ import com.example.demo.models.Quiz;
 import com.example.demo.models.QuizResult;
 import com.example.demo.models.QuizStudent;
 import com.example.demo.models.User;
+import com.example.demo.modelsDTO.QuizDetalDTO;
 import com.example.demo.respositoris.ClassroomRepository;
 import com.example.demo.respositoris.QuestionRepository;
 import com.example.demo.respositoris.QuizRepository;
@@ -80,10 +80,14 @@ public class QuizController {
                                 QuizResult quizResult = new QuizResult();
                                 quizResult.setCompleted(false);
                                 quizResult.setAnswers(answers);
+                                quizResult.setStartDate(new Date());
+                                quizResult.setSubmitDate(new Date());
                                 quizResultRepository.save(quizResult);
+
                                 quizResults.add(quizResult);
                                 quizStudent.setQuizResults(quizResults);
                                 quizStudentRepository.save(quizStudent);
+
                                 modelMap.addAttribute("quizResultId", quizResult.getId());
                                 modelMap.addAttribute("quizResult", quizResult);
                             } else {
@@ -117,6 +121,7 @@ public class QuizController {
     public String getQuiz(@PathVariable("id") String id, @RequestParam Map<String, String> params, ModelMap modelMap) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
+            System.out.println("Đã nộp bài");
             String username = authentication.getName();
             User currentUser = userRepository.findByEmail(username);
             Optional<Quiz> optionalQuiz = quizRepository.findById(id);
@@ -152,19 +157,18 @@ public class QuizController {
                 }
                 if (optionalQuizResult.isPresent()) {
                     QuizResult quizResult = optionalQuizResult.get();
-                    System.out.println(quizResult.getId());
                     quizResult.setCompleted(true);
                     quizResult.setAnswers(answers);
                     quizResult.setScore(roundedScore.doubleValue());
                     quizResult.setCorrectAnswersCount(correctAnswersCount);
                     quizResult.setWrongAnswersCount(wrongAnswersCount);
                     quizResult.setUnansweredCount(unansweredCount);
+                    quizResult.setSubmitDate(new Date());
                     quizResultRepository.save(quizResult);
                 }
 
                 modelMap.addAttribute("quiz", quiz);
                 modelMap.addAttribute("questions", questions);
-                System.out.println(roundedScore);
                 return "redirect:/quiz/" + id + "/detal?q=" + params.get("quizResultId");
 
             } else {
@@ -202,6 +206,7 @@ public class QuizController {
                 }
                 if (optionalQuizResult.isPresent()) {
                     QuizResult quizResult = optionalQuizResult.get();
+                    quizResult.setSubmitDate(new Date());
                     quizResult.setAnswers(answers);
                     quizResult.setAttemptTime(Integer.parseInt(params.get("timeElapsed")));
                     quizResultRepository.save(quizResult);
@@ -217,15 +222,14 @@ public class QuizController {
             @RequestParam Map<String, String> params) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
-            // int q = Integer.parseInt(params.get("q"));
             String username = authentication.getName();
             User currentUser = userRepository.findByEmail(username);
-            if ("student".equals(currentUser.getRole())) {
-                Optional<Quiz> optionalQuiz = quizRepository.findById(id);
-                if (optionalQuiz.isPresent()) {
-                    Quiz quiz = optionalQuiz.get();
-                    List<Question> questions = quiz.getQuestions();
-                    Classroom classroom = quiz.getClassroom();
+            Optional<Quiz> optionalQuiz = quizRepository.findById(id);
+            if (optionalQuiz.isPresent()) {
+                Quiz quiz = optionalQuiz.get();
+                List<Question> questions = quiz.getQuestions();
+                Classroom classroom = quiz.getClassroom();
+                if ("student".equals(currentUser.getRole())) {
                     QuizStudent quizStudent = quizStudentRepository.findByClassroomIdAndStudentIdAndQuiz(
                             classroom.getId(),
                             currentUser.getId(), quiz);
@@ -256,17 +260,100 @@ public class QuizController {
                     }
                     modelMap.addAttribute("q", index);
                     modelMap.addAttribute("quiz", quiz);
-                    modelMap.addAttribute("classroom", classroom);
                     modelMap.addAttribute("quizResults", quizResults);
+                    modelMap.addAttribute("classroom", classroom);
                     optionalQuizResult.ifPresent(quizResult -> {
                         modelMap.addAttribute("answers", quizResult.getAnswers());
                         modelMap.addAttribute("quizResult", quizResult);
                     });
                     modelMap.addAttribute("questions", questions);
+                    return "detalQuiz";
+                } else {
+                    if (!classroom.getTeacherId().equals(currentUser.getId())) {
+                        modelMap.addAttribute("errorText", "Không có quyền xem");
+                        return "errorMaxAttempt";
+                    } else {
+                        List<String> studentIds = classroom.getStudentIds();
+                        ArrayList<QuizStudent> quizStudents = new ArrayList<>();
+                        ArrayList<QuizDetalDTO> quizDetalDTOs = new ArrayList<>();
+                        Map<Integer, Integer> scoreMap = new LinkedHashMap<>();
+                        int count = 0;
+                        for (int i = 1; i <= 10; i++) {
+                            scoreMap.put(i, 0);
+                        }
+                        for (String studentId : studentIds) {
+                            QuizDetalDTO quizDetalDTO = new QuizDetalDTO();
+                            Optional<User> optionalStudent = userRepository.findById(studentId);
+                            optionalStudent.ifPresent(student -> quizDetalDTO.setUser(student));
+                            QuizStudent quizStudent = quizStudentRepository
+                                    .findByClassroomIdAndStudentIdAndQuiz(classroom.getId(), studentId, quiz);
+                            List<QuizResult> quizResults = quizStudent.getQuizResults();
+                            if (quizResults.size() > 0 && quizResults.get(0).isCompleted()) {
+                                count += 1;
+                            }
+                            if (quizResults.size() == 0) {
+                                quizDetalDTO.setAttempt(0);
+                                quizDetalDTO.setQuizResult(null);
+                            } else if (quizResults.size() == 1) {
+                                quizDetalDTO.setQuizResult(quizResults.get(0));
+                                if (quizResults.get(0).isCompleted()) {
+                                    quizDetalDTO.setAttempt(1);
+                                } else {
+                                    quizDetalDTO.setAttempt(0);
+                                }
+                            } else {
+                                if (quizResults.get(quizResults.size() - 1).isCompleted()) {
+                                    quizDetalDTO.setAttempt(quizResults.size());
+                                } else {
+                                    quizDetalDTO.setAttempt(quizResults.size() - 1);
+                                }
+                                if (quiz.getScoreType().name() == "FIRST_ATTEMPT") {
+                                    quizDetalDTO.setQuizResult(quizResults.get(0));
+                                } else if (quiz.getScoreType().name() == "LAST_ATTEMPT") {
+                                    for (int i = quizResults.size() - 1; i >= 0; i--) {
+                                        if (quizResults.get(i).isCompleted()) {
+                                            quizDetalDTO.setQuizResult(quizResults.get(i));
+                                            break;
+                                        }
+                                    }
+                                } else {
+                                    double highestScore = 0.0;
+                                    QuizResult quizResultUser = null;
+                                    for (QuizResult quizResult : quizResults) {
+                                        if (quizResult.isCompleted() && quizResult.getScore() > highestScore) {
+                                            highestScore = quizResult.getScore();
+                                            quizResultUser = quizResult;
+                                        }
+                                    }
+                                    quizDetalDTO.setQuizResult(quizResultUser);
+                                }
+                            }
+
+                            if (quizDetalDTO.getQuizResult() != null && quizDetalDTO.getQuizResult().isCompleted()) {
+                                double score = quizDetalDTO.getQuizResult().getScore();
+                                for (int i = 1; i <= 10; i++) {
+                                    if (score <= i && score >= i - 1) {
+                                        scoreMap.put(i, scoreMap.get(i) + 1);
+                                    }
+                                }
+                            }
+                            quizDetalDTOs.add(quizDetalDTO);
+                        }
+
+                        for (Integer key : scoreMap.keySet()) {
+                            System.out.println("Key: " + key + ", Value: " + scoreMap.get(key));
+                        }
+                        modelMap.addAttribute("quizDetalDTOs", quizDetalDTOs);
+                        modelMap.addAttribute("scoreMap", scoreMap);
+                        modelMap.addAttribute("count", count);
+                        modelMap.addAttribute("quiz", quiz);
+                        modelMap.addAttribute("questions", quiz.getQuestions());
+                        modelMap.addAttribute("classroom", classroom);
+                        return "detalQuizTeacher";
+                    }
                 }
-                return "detalQuiz";
             } else {
-                modelMap.addAttribute("errorText", "Không có quyền xem");
+                modelMap.addAttribute("errorText", "Không tìm thấy bài tập này!");
                 return "errorMaxAttempt";
             }
         } else {

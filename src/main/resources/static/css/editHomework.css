@@ -1,3 +1,25 @@
-.container{
+
+
+.container form{
+    padding: 20px 20px 40px 20px;
+}
+
+.title{
     padding: 10px;
+    display: flex;
+    align-items: center;
+    position: sticky;
+    top: 60px;
+    background-color: white;
+    border-bottom: 1px solid #ccc;
+}
+
+.title i{
+    font-size: 40px;
+    cursor: pointer;
+}
+
+h1{
+    text-align: center;
+    width: 100%;
 }

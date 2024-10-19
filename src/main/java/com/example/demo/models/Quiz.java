@@ -23,7 +23,7 @@ public class Quiz {
     private Classroom classroom;
     @DBRef
     private List<Question> questions;
-    private int examDuration;
+    private int examDuration = 1;
     private boolean isExamDuration = false;
 
     private ScoreType scoreType = ScoreType.FIRST_ATTEMPT;

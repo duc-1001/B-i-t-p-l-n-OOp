@@ -4,6 +4,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.ZoneId;
+
 import java.util.*;
 
 @Document(collection = "quizResult")
@@ -11,13 +14,15 @@ public class QuizResult {
     @Id
     private String id;
     private List<String> answers = new ArrayList<>(); // Danh sách câu trả lời
-    private double score; // Điểm đạt được
-    private int attemptCount; // Lần làm bài thứ mấy
-    private boolean completed; // Đã hoàn thành bài thi chưa
-    private int attemptTime = 1; // Thời gian làm bài
-    private int correctAnswersCount; // Số câu trả lời đúng
-    private int wrongAnswersCount; // Số câu trả lời sai
+    private double score; 
+    private int attemptCount; 
+    private boolean completed; 
+    private int attemptTime = 1; 
+    private int correctAnswersCount;
+    private int wrongAnswersCount; 
     private int unansweredCount;
+    private Date submitDate;
+    private Date startDate;
 
     // Getters and Setters
     public String getId() {
@@ -90,6 +95,51 @@ public class QuizResult {
 
     public void setUnansweredCount(int unansweredCount) {
         this.unansweredCount = unansweredCount;
+    }
+
+    public void setSubmitDate(Date submitDate) {
+        this.submitDate = submitDate;
+    }
+
+    public Date getSubmitDate() {
+        return submitDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public String getSubmitDateFormat() {
+        if (submitDate != null) {
+            LocalDateTime localDateTime = submitDate.toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy");
+            return localDateTime.format(dtf);
+        }
+        return null;
+    }
+
+    public String convertSecondsToTimeFormat() {
+        int hours = attemptTime / 3600;
+        int minutes = (attemptTime % 3600) / 60;
+        int seconds = attemptTime % 60;
+        List<String> timeParts = new ArrayList<>();
+        if (hours > 0) {
+            timeParts.add(hours + "h");
+        }
+        if (minutes > 0) {
+            timeParts.add(minutes + "m");
+        }
+        if (seconds > 0) {
+            timeParts.add(seconds + "s");
+        }
+
+        return String.join("", timeParts);
     }
 
 }

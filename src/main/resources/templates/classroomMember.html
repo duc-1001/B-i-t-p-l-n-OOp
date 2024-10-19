@@ -20,7 +20,7 @@
             <div th:replace="fragments/sidebarStudent :: sidebarStudent"></div>
         </div>
         <div class="container_content">
-            <div class="container_content_title" th:text="'Thành viên lớp học (' + ${room.getStudentsCount} +')'">
+            <div class="container_content_title" th:text="'Thành viên lớp học (' + ${classroom.getStudentsCount} +')'">
                 Thành viên lớp học (0)
             </div>
             <div class="line"></div>
@@ -34,8 +34,8 @@
                     <div class="member">
                         <div class="" th:text="${student.username}">Đào Danh Đức</div>
                         <div class="list_member_header_item" th:text="${student.email}">duc@gmail.com</div>
-                        <div class="list_member_header_item" th:text="${ds[student.id]}+'/'+${room.getExercise}"></div>
-                        <a th:href="@{../../classroom/delete_user/{id}/{classId}(id=${student.id},classId=${room.id})}"
+                        <div class="list_member_header_item" th:text="${ds[student.id]}+'/'+${classroom.getExercise}"></div>
+                        <a th:href="@{../../classroom/delete_user/{id}/{classId}(id=${student.id},classId=${classroom.id})}"
                             th:if="${currentUser.role == 'teacher'}" class="delete_room"
                             onclick="return confirm('Bạn có muốn xoá học sinh ra lớp học không?')">
                             <i class="fa-solid fa-trash-can"></i>

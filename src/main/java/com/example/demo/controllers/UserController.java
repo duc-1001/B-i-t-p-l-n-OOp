@@ -29,7 +29,16 @@ public class UserController {
 
     @GetMapping("")
     public String getProfileUser(ModelMap modelMap) {
-        return "profileUser";
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            String username = authentication.getName();
+            User user = userRepository.findByEmail(username);
+            modelMap.addAttribute("user", user);
+            return "profileUser";
+        }
+        else{
+            return "redirect:/login";
+        }
     }
 
     @PostMapping("/update")
