@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Project Java</title>
+    <link th:href="@{/css/styles.css}" rel="stylesheet" />
+    <link th:href="@{/css/detalQuizTeacher.css}" rel="stylesheet" />
+    <link th:href="@{/css/header.css}" rel="stylesheet" />
+    <link th:href="@{/css/sidebar.css}" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+
+<body>
+    <div th:replace="fragments/header :: header"></div>
+    <div class="title">
+        <div class="header_title">
+            <a th:href="@{../../classroom/{id}/homework/list(id=${classroom.id})}">Bài tập</a>
+            <i class="fa-solid fa-caret-right"></i>
+            <div th:text="${quiz.title}"></div>
+        </div>
+        <div class="options_title">
+            <a th:href="@{../../../quiz/{id}/detal/scoreboard/all(id=${quiz.id})}" data-type="scoreboard">Bảng điểm</a>
+            <a th:href="@{../../../quiz/{id}/detal/overview(id=${quiz.id})}" data-type="overview">Tổng quan</a>
+            <!-- <a>Thông số</a> -->
+            <a th:href="@{../../../quiz/{id}/detal/topic(id=${quiz.id})}" data-type="topic_quiz">Đề bài</a>
+        </div>
+    </div>
+    <div class="container">
+        <div class="topic_quiz">
+            <div class="list_question">
+                <div th:each="question,questionIndex : ${questions}" class="question">
+                    <h3 th:text="'Câu '+${questionIndex.count}+' :'"></h3>
+                    <div class="question_text" th:text="${question.questionText}"> </div>
+                    <div class="answers">
+                        <div class="answer">
+                            <label th:classappend="${question.correctAnswer}=='A' ? 'active' : ''"
+                                th:for="'answer_'+${questionIndex.index}+'_A'">
+                                <div>A</div>
+                                <div th:text="${question.options[0]}"></div>
+                            </label>
+                        </div>
+                        <div class="answer">
+                            <label th:classappend="${question.correctAnswer}=='B' ? 'active' : ''"
+                                th:for="'answer_'+${questionIndex.index}+'_B'">
+                                <div>B</div>
+                                <div th:text="${question.options[1]}"></div>
+                            </label>
+                        </div>
+                        <div class="answer">
+                            <label th:classappend="${question.correctAnswer}=='C' ? 'active' : ''"
+                                th:for="'answer_'+${questionIndex.index}+'_C'">
+                                <div>C</div>
+                                <div th:text="${question.options[2]}"></div>
+                            </label>
+                        </div>
+                        <div class="answer">
+                            <label th:classappend="${question.correctAnswer}=='D' ? 'active' : ''"
+                                th:for="'answer_'+${questionIndex.index}+'_D'">
+                                <div>D</div>
+                                <div th:text="${question.options[3]}"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function () {
+        const currentPath = window.location.pathname.split('/')[4];
+        document.querySelectorAll('.options_title a').forEach(item => {
+            const href = item.getAttribute('data-type')
+            if (currentPath.includes(href)) {
+                item.classList.add('active');
+            }
+        });
+    });
+    })
+
+</script>
+
+</html>

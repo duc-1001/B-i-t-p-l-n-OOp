@@ -58,7 +58,7 @@
                     <div class="line"></div>
                     <a th:href="@{../../{id}/homework/edit/{quizId}(id=${classroom.id},quizId=${quizzes[0].id})}"
                         class="edit_quiz" th:if="${currentUser.role == 'teacher'}">Chỉnh sửa bài tập</a>
-                    <a th:href="@{../../../quiz/{quizId}/detal(quizId=${quizzes[0].id})}"
+                    <a th:href="@{../../../quiz/{quizId}/detal/scoreboard/all(quizId=${quizzes[0].id})}"
                         class="result_quiz">
                         Chi tiết
                         <i class="fa-solid fa-arrow-right-long"></i>
@@ -106,7 +106,7 @@
                     }
 
                     if (resultQuizLink) {
-                        resultQuizLink.href = `../../../quiz/${quizId}/detal`;
+                        resultQuizLink.href = `../../../quiz/${quizId}/detal/scoreboard/all`;
                     }
                     document.querySelector('.quiz_info').style.display = 'block';
                 });

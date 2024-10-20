@@ -81,7 +81,7 @@ public class QuizController {
                                 quizResult.setCompleted(false);
                                 quizResult.setAnswers(answers);
                                 quizResult.setStartDate(new Date());
-                                quizResult.setSubmitDate(new Date());
+                                // quizResult.setSubmitDate(new Date());
                                 quizResultRepository.save(quizResult);
 
                                 quizResults.add(quizResult);
@@ -179,6 +179,75 @@ public class QuizController {
         }
     }
 
+    @GetMapping("/{id}/recall")
+    public String recallQuiz(@PathVariable("id") String id, ModelMap modelMap) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            String username = authentication.getName();
+            User currentUser = userRepository.findByEmail(username);
+            if (currentUser.getRole().equals("student")) {
+                modelMap.addAttribute("errorText", "Bạn không có quyền làm điều này!");
+                return "errorMaxAttempt";
+            } else {
+                Optional<QuizStudent> optionalQuizStudent = quizStudentRepository.findById(id);
+                if (optionalQuizStudent.isPresent()) {
+                    QuizStudent quizStudent = optionalQuizStudent.get();
+                    Quiz quiz = quizStudent.getQuiz();
+                    Classroom classroom = classroomRepository.findById(quizStudent.getClassroomId()).get();
+                    if (classroom.getTeacherId().equals(currentUser.getId())) {
+                        List<QuizResult> quizResults = quizStudent.getQuizResults();
+                        QuizResult quizResult = quizResults.get(quizResults.size() - 1);
+
+                        List<String> answers = quizResult.getAnswers();
+                        List<Question> questions = quiz.getQuestions();
+
+                        int correctAnswersCount = 0;
+                        int wrongAnswersCount = 0;
+                        int unansweredCount = 0;
+                        int len = quiz.getQuestions().size();
+                        for (int i = 0; i < answers.size(); i++) {
+                            if (answers.get(i).isEmpty()) {
+                                unansweredCount++;
+                            } else if (answers.get(i).equals(questions.get(i).getCorrectAnswer())) {
+                                correctAnswersCount++;
+                            } else {
+                                wrongAnswersCount++;
+                            }
+                        }
+                        double score = (double) correctAnswersCount / len * 10;
+                        BigDecimal roundedScore = BigDecimal.valueOf(score).setScale(2, RoundingMode.HALF_UP);
+
+                        quizResult.setCompleted(true);
+                        quizResult.setCorrectAnswersCount(correctAnswersCount);
+                        quizResult.setWrongAnswersCount(wrongAnswersCount);
+                        quizResult.setUnansweredCount(unansweredCount);
+                        quizResult.setScore(roundedScore.doubleValue());
+                        quizResult.setSubmitDate(new Date());
+                        quizResult.setAttemptTime((int) Math.abs(new Date().getTime() - quizResult.getStartDate().getTime()));
+                        
+                        quizResultRepository.save(quizResult);
+                        System.out.println((int) Math.abs(new Date().getTime() - quizResult.getStartDate().getTime()));
+
+                        System.out .println(correctAnswersCount + "" + unansweredCount + wrongAnswersCount + roundedScore);
+                        for (String a : answers) {
+                            System.out.println(a);
+                        }
+
+                        return "redirect:/quiz/" + quiz.getId() + "/detal/scoreboard/all";
+                    } else {
+                        modelMap.addAttribute("errorText", "Bạn không có quyền làm điều này!");
+                        return "errorMaxAttempt";
+                    }
+                } else {
+                    modelMap.addAttribute("errorText", "Không tìm thấy bài tập này");
+                    return "errorMaxAttempt";
+                }
+            }
+        } else {
+            return "redirect:/login";
+        }
+    }
+
     @PostMapping("/{id}/save")
     public ResponseEntity<Void> saveQuiz(@PathVariable("id") String id, @RequestBody Map<String, String> params) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -206,7 +275,7 @@ public class QuizController {
                 }
                 if (optionalQuizResult.isPresent()) {
                     QuizResult quizResult = optionalQuizResult.get();
-                    quizResult.setSubmitDate(new Date());
+                    // quizResult.setSubmitDate(new Date());
                     quizResult.setAnswers(answers);
                     quizResult.setAttemptTime(Integer.parseInt(params.get("timeElapsed")));
                     quizResultRepository.save(quizResult);
@@ -218,7 +287,7 @@ public class QuizController {
     }
 
     @GetMapping("/{id}/detal")
-    public String getDetalQuiz(@PathVariable("id") String id, ModelMap modelMap,
+    public String getDetalQuizStudent(@PathVariable("id") String id, ModelMap modelMap,
             @RequestParam Map<String, String> params) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -269,6 +338,30 @@ public class QuizController {
                     modelMap.addAttribute("questions", questions);
                     return "detalQuiz";
                 } else {
+                    modelMap.addAttribute("errorText", "Không có quyền xem!");
+                    return "errorMaxAttempt";
+                }
+            } else {
+                modelMap.addAttribute("errorText", "Không tìm thấy bài tập này!");
+                return "errorMaxAttempt";
+            }
+        } else {
+            return "redirect:/login";
+        }
+    }
+
+    @GetMapping("/{id}/detal/scoreboard/all")
+    public String getDetalQuizScoreboardAll(@PathVariable("id") String id, ModelMap modelMap,
+            @RequestParam Map<String, String> params) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            String username = authentication.getName();
+            User currentUser = userRepository.findByEmail(username);
+            Optional<Quiz> optionalQuiz = quizRepository.findById(id);
+            if (optionalQuiz.isPresent()) {
+                Quiz quiz = optionalQuiz.get();
+                Classroom classroom = quiz.getClassroom();
+                if ("teacher".equals(currentUser.getRole())) {
                     if (!classroom.getTeacherId().equals(currentUser.getId())) {
                         modelMap.addAttribute("errorText", "Không có quyền xem");
                         return "errorMaxAttempt";
@@ -276,6 +369,267 @@ public class QuizController {
                         List<String> studentIds = classroom.getStudentIds();
                         ArrayList<QuizStudent> quizStudents = new ArrayList<>();
                         ArrayList<QuizDetalDTO> quizDetalDTOs = new ArrayList<>();
+                        for (String studentId : studentIds) {
+                            QuizDetalDTO quizDetalDTO = new QuizDetalDTO();
+                            Optional<User> optionalStudent = userRepository.findById(studentId);
+                            optionalStudent.ifPresent(student -> quizDetalDTO.setUser(student));
+                            QuizStudent quizStudent = quizStudentRepository
+                                    .findByClassroomIdAndStudentIdAndQuiz(classroom.getId(), studentId, quiz);
+                            List<QuizResult> quizResults = quizStudent.getQuizResults();
+                            if (quizResults.size() == 0) {
+                                quizDetalDTO.setAttempt(0);
+                                quizDetalDTO.setQuizResult(null);
+                            } else if (quizResults.size() == 1) {
+                                quizDetalDTO.setQuizResult(quizResults.get(0));
+                                if (quizResults.get(0).isCompleted()) {
+                                    quizDetalDTO.setAttempt(1);
+                                } else {
+                                    quizDetalDTO.setAttempt(0);
+                                }
+                            } else {
+                                if (quizResults.get(quizResults.size() - 1).isCompleted()) {
+                                    quizDetalDTO.setAttempt(quizResults.size());
+                                } else {
+                                    quizDetalDTO.setAttempt(quizResults.size() - 1);
+                                }
+                                if (quiz.getScoreType().name() == "FIRST_ATTEMPT") {
+                                    quizDetalDTO.setQuizResult(quizResults.get(0));
+                                } else if (quiz.getScoreType().name() == "LAST_ATTEMPT") {
+                                    for (int i = quizResults.size() - 1; i >= 0; i--) {
+                                        if (quizResults.get(i).isCompleted()) {
+                                            quizDetalDTO.setQuizResult(quizResults.get(i));
+                                            break;
+                                        }
+                                    }
+                                } else {
+                                    double highestScore = 0.0;
+                                    QuizResult quizResultUser = null;
+                                    for (QuizResult quizResult : quizResults) {
+                                        if (quizResult.isCompleted() && quizResult.getScore() > highestScore) {
+                                            highestScore = quizResult.getScore();
+                                            quizResultUser = quizResult;
+                                        }
+                                    }
+                                    quizDetalDTO.setQuizResult(quizResultUser);
+                                }
+                            }
+                            quizDetalDTOs.add(quizDetalDTO);
+                        }
+                        modelMap.addAttribute("quizDetalDTOs", quizDetalDTOs);
+                        modelMap.addAttribute("quiz", quiz);
+                        modelMap.addAttribute("classroom", classroom);
+                        return "detalQuizScoreboard";
+                    }
+                } else {
+                    modelMap.addAttribute("errorText", "Bạn không có quyền xem!");
+                    return "errorMaxAttempt";
+                }
+            } else {
+                modelMap.addAttribute("errorText", "Không tìm thấy bài tập này!");
+                return "errorMaxAttempt";
+            }
+        } else {
+            return "redirect:/login";
+        }
+    }
+
+    @GetMapping("/{id}/detal/scoreboard/uncompleted")
+    public String getDetalQuizScoreboardUncompleted(@PathVariable("id") String id, ModelMap modelMap,
+            @RequestParam Map<String, String> params) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            String username = authentication.getName();
+            User currentUser = userRepository.findByEmail(username);
+            Optional<Quiz> optionalQuiz = quizRepository.findById(id);
+            if (optionalQuiz.isPresent()) {
+                Quiz quiz = optionalQuiz.get();
+                Classroom classroom = quiz.getClassroom();
+                if ("teacher".equals(currentUser.getRole())) {
+                    if (!classroom.getTeacherId().equals(currentUser.getId())) {
+                        modelMap.addAttribute("errorText", "Không có quyền xem");
+                        return "errorMaxAttempt";
+                    } else {
+                        List<String> studentIds = classroom.getStudentIds();
+                        ArrayList<QuizStudent> quizStudents = new ArrayList<>();
+                        ArrayList<QuizDetalDTO> quizDetalDTOs = new ArrayList<>();
+                        for (String studentId : studentIds) {
+                            QuizDetalDTO quizDetalDTO = new QuizDetalDTO();
+                            Optional<User> optionalStudent = userRepository.findById(studentId);
+                            QuizStudent quizStudent = quizStudentRepository
+                                    .findByClassroomIdAndStudentIdAndQuiz(classroom.getId(), studentId, quiz);
+                            List<QuizResult> quizResults = quizStudent.getQuizResults();
+                            if (quizResults.size() == 0 || !quizResults.get(0).isCompleted()) {
+                                optionalStudent.ifPresent(student -> quizDetalDTO.setUser(student));
+                                quizDetalDTO.setAttempt(0);
+                                quizDetalDTO.setQuizResult(null);
+                                quizDetalDTOs.add(quizDetalDTO);
+                            }
+                        }
+                        modelMap.addAttribute("quizDetalDTOs", quizDetalDTOs);
+                        modelMap.addAttribute("quiz", quiz);
+                        modelMap.addAttribute("classroom", classroom);
+                        return "detalQuizScoreboard";
+                    }
+                } else {
+                    modelMap.addAttribute("errorText", "Bạn không có quyền xem!");
+                    return "errorMaxAttempt";
+                }
+            } else {
+                modelMap.addAttribute("errorText", "Không tìm thấy bài tập này!");
+                return "errorMaxAttempt";
+            }
+        } else {
+            return "redirect:/login";
+        }
+    }
+
+    @GetMapping("/{id}/detal/scoreboard/isdoing")
+    public String getDetalQuizScoreboardIsdoing(@PathVariable("id") String id, ModelMap modelMap,
+            @RequestParam Map<String, String> params) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            String username = authentication.getName();
+            User currentUser = userRepository.findByEmail(username);
+            Optional<Quiz> optionalQuiz = quizRepository.findById(id);
+            if (optionalQuiz.isPresent()) {
+                Quiz quiz = optionalQuiz.get();
+                Classroom classroom = quiz.getClassroom();
+                if ("teacher".equals(currentUser.getRole())) {
+                    if (!classroom.getTeacherId().equals(currentUser.getId())) {
+                        modelMap.addAttribute("errorText", "Không có quyền xem");
+                        return "errorMaxAttempt";
+                    } else {
+                        List<String> studentIds = classroom.getStudentIds();
+                        ArrayList<QuizDetalDTO> quizDetalDTOs = new ArrayList<>();
+                        Map<String, QuizStudent> quizStudentMap = new HashMap<>();
+                        for (String studentId : studentIds) {
+                            QuizDetalDTO quizDetalDTO = new QuizDetalDTO();
+                            Optional<User> optionalStudent = userRepository.findById(studentId);
+                            optionalStudent.ifPresent(student -> quizDetalDTO.setUser(student));
+                            QuizStudent quizStudent = quizStudentRepository
+                                    .findByClassroomIdAndStudentIdAndQuiz(classroom.getId(), studentId, quiz);
+                            List<QuizResult> quizResults = quizStudent.getQuizResults();
+                            if (quizResults.size() > 0 && !quizResults.get(quizResults.size() - 1).isCompleted()) {
+                                if (quizResults.get(quizResults.size() - 1).isCompleted()) {
+                                    quizDetalDTO.setAttempt(quizResults.size());
+                                } else {
+                                    quizDetalDTO.setAttempt(quizResults.size() - 1);
+                                }
+                                quizStudentMap.put(studentId, quizStudent);
+                                quizDetalDTO.setQuizResult(quizResults.get(quizResults.size() - 1));
+                                quizDetalDTOs.add(quizDetalDTO);
+                            }
+                        }
+                        modelMap.addAttribute("quizDetalDTOs", quizDetalDTOs);
+                        modelMap.addAttribute("quizStudentMap", quizStudentMap);
+                        modelMap.addAttribute("quiz", quiz);
+                        modelMap.addAttribute("classroom", classroom);
+                        return "detalQuizScoreboardIsdoing";
+                    }
+                } else {
+                    modelMap.addAttribute("errorText", "Bạn không có quyền xem!");
+                    return "errorMaxAttempt";
+                }
+            } else {
+                modelMap.addAttribute("errorText", "Không tìm thấy bài tập này!");
+                return "errorMaxAttempt";
+            }
+        } else {
+            return "redirect:/login";
+        }
+    }
+
+    @GetMapping("/{id}/detal/scoreboard/completed")
+    public String getDetalQuizScoreboardComplete(@PathVariable("id") String id, ModelMap modelMap,
+            @RequestParam Map<String, String> params) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            String username = authentication.getName();
+            User currentUser = userRepository.findByEmail(username);
+            Optional<Quiz> optionalQuiz = quizRepository.findById(id);
+            if (optionalQuiz.isPresent()) {
+                Quiz quiz = optionalQuiz.get();
+                Classroom classroom = quiz.getClassroom();
+                if ("teacher".equals(currentUser.getRole())) {
+                    if (!classroom.getTeacherId().equals(currentUser.getId())) {
+                        modelMap.addAttribute("errorText", "Không có quyền xem");
+                        return "errorMaxAttempt";
+                    } else {
+                        List<String> studentIds = classroom.getStudentIds();
+                        ArrayList<QuizStudent> quizStudents = new ArrayList<>();
+                        ArrayList<QuizDetalDTO> quizDetalDTOs = new ArrayList<>();
+                        for (String studentId : studentIds) {
+                            QuizDetalDTO quizDetalDTO = new QuizDetalDTO();
+                            Optional<User> optionalStudent = userRepository.findById(studentId);
+                            QuizStudent quizStudent = quizStudentRepository
+                                    .findByClassroomIdAndStudentIdAndQuiz(classroom.getId(), studentId, quiz);
+                            List<QuizResult> quizResults = quizStudent.getQuizResults();
+                            if (quizResults.size() > 0 && quizResults.get(0).isCompleted()) {
+                                optionalStudent.ifPresent(student -> quizDetalDTO.setUser(student));
+                                if (quizResults.get(quizResults.size() - 1).isCompleted()) {
+                                    quizDetalDTO.setAttempt(quizResults.size());
+                                } else {
+                                    quizDetalDTO.setAttempt(quizResults.size() - 1);
+                                }
+                                if (quiz.getScoreType().name() == "FIRST_ATTEMPT") {
+                                    quizDetalDTO.setQuizResult(quizResults.get(0));
+                                } else if (quiz.getScoreType().name() == "LAST_ATTEMPT") {
+                                    for (int i = quizResults.size() - 1; i >= 0; i--) {
+                                        if (quizResults.get(i).isCompleted()) {
+                                            quizDetalDTO.setQuizResult(quizResults.get(i));
+                                            break;
+                                        }
+                                    }
+                                } else {
+                                    double highestScore = 0.0;
+                                    QuizResult quizResultUser = null;
+                                    for (QuizResult quizResult : quizResults) {
+                                        if (quizResult.isCompleted() && quizResult.getScore() > highestScore) {
+                                            highestScore = quizResult.getScore();
+                                            quizResultUser = quizResult;
+                                        }
+                                    }
+                                    quizDetalDTO.setQuizResult(quizResultUser);
+                                }
+                            }
+                            quizDetalDTOs.add(quizDetalDTO);
+                        }
+                        modelMap.addAttribute("quizDetalDTOs", quizDetalDTOs);
+                        modelMap.addAttribute("quiz", quiz);
+                        modelMap.addAttribute("classroom", classroom);
+                        return "detalQuizScoreboard";
+                    }
+                } else {
+                    modelMap.addAttribute("errorText", "Bạn không có quyền xem!");
+                    return "errorMaxAttempt";
+                }
+            } else {
+                modelMap.addAttribute("errorText", "Không tìm thấy bài tập này!");
+                return "errorMaxAttempt";
+            }
+        } else {
+            return "redirect:/login";
+        }
+    }
+
+    @GetMapping("/{id}/detal/overview")
+    public String getDetalQuizOverview(@PathVariable("id") String id, ModelMap modelMap,
+            @RequestParam Map<String, String> params) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            String username = authentication.getName();
+            User currentUser = userRepository.findByEmail(username);
+            Optional<Quiz> optionalQuiz = quizRepository.findById(id);
+            if (optionalQuiz.isPresent()) {
+                Quiz quiz = optionalQuiz.get();
+                Classroom classroom = quiz.getClassroom();
+                if ("teacher".equals(currentUser.getRole())) {
+                    if (!classroom.getTeacherId().equals(currentUser.getId())) {
+                        modelMap.addAttribute("errorText", "Không có quyền xem");
+                        return "errorMaxAttempt";
+                    } else {
+                        List<String> studentIds = classroom.getStudentIds();
+                        ArrayList<QuizStudent> quizStudents = new ArrayList<>();
                         Map<Integer, Integer> scoreMap = new LinkedHashMap<>();
                         int count = 0;
                         for (int i = 1; i <= 10; i++) {
@@ -337,20 +691,54 @@ public class QuizController {
                                     }
                                 }
                             }
-                            quizDetalDTOs.add(quizDetalDTO);
                         }
 
                         for (Integer key : scoreMap.keySet()) {
                             System.out.println("Key: " + key + ", Value: " + scoreMap.get(key));
                         }
-                        modelMap.addAttribute("quizDetalDTOs", quizDetalDTOs);
                         modelMap.addAttribute("scoreMap", scoreMap);
                         modelMap.addAttribute("count", count);
                         modelMap.addAttribute("quiz", quiz);
+                        modelMap.addAttribute("classroom", classroom);
+                        return "detalQuizOverview";
+                    }
+                } else {
+                    modelMap.addAttribute("errorText", "Bạn không có quyền xem!");
+                    return "errorMaxAttempt";
+                }
+            } else {
+                modelMap.addAttribute("errorText", "Không tìm thấy bài tập này!");
+                return "errorMaxAttempt";
+            }
+        } else {
+            return "redirect:/login";
+        }
+    }
+
+    @GetMapping("/{id}/detal/topic")
+    public String getDetalQuizTopic(@PathVariable("id") String id, ModelMap modelMap,
+            @RequestParam Map<String, String> params) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            String username = authentication.getName();
+            User currentUser = userRepository.findByEmail(username);
+            Optional<Quiz> optionalQuiz = quizRepository.findById(id);
+            if (optionalQuiz.isPresent()) {
+                Quiz quiz = optionalQuiz.get();
+                Classroom classroom = quiz.getClassroom();
+                if ("teacher".equals(currentUser.getRole())) {
+                    if (!classroom.getTeacherId().equals(currentUser.getId())) {
+                        modelMap.addAttribute("errorText", "Không có quyền xem");
+                        return "errorMaxAttempt";
+                    } else {
+                        modelMap.addAttribute("quiz", quiz);
                         modelMap.addAttribute("questions", quiz.getQuestions());
                         modelMap.addAttribute("classroom", classroom);
-                        return "detalQuizTeacher";
+                        return "detalQuizTopic";
                     }
+                } else {
+                    modelMap.addAttribute("errorText", "Bạn không có quyền xem!");
+                    return "errorMaxAttempt";
                 }
             } else {
                 modelMap.addAttribute("errorText", "Không tìm thấy bài tập này!");
@@ -361,3 +749,6 @@ public class QuizController {
         }
     }
 }
+
+// modelMap.addAttribute("errorText", "Bạn không có quyền xem!");
+// return "errorMaxAttempt";

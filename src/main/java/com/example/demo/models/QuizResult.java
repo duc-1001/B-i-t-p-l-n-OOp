@@ -14,12 +14,12 @@ public class QuizResult {
     @Id
     private String id;
     private List<String> answers = new ArrayList<>(); // Danh sách câu trả lời
-    private double score; 
-    private int attemptCount; 
-    private boolean completed; 
-    private int attemptTime = 1; 
+    private double score;
+    private int attemptCount;
+    private boolean completed;
+    private int attemptTime = 1;
     private int correctAnswersCount;
-    private int wrongAnswersCount; 
+    private int wrongAnswersCount;
     private int unansweredCount;
     private Date submitDate;
     private Date startDate;
@@ -128,6 +128,27 @@ public class QuizResult {
         int hours = attemptTime / 3600;
         int minutes = (attemptTime % 3600) / 60;
         int seconds = attemptTime % 60;
+        List<String> timeParts = new ArrayList<>();
+        if (hours > 0) {
+            timeParts.add(hours + "h");
+        }
+        if (minutes > 0) {
+            timeParts.add(minutes + "m");
+        }
+        if (seconds > 0) {
+            timeParts.add(seconds + "s");
+        }
+
+        return String.join("", timeParts);
+    }
+
+    public String calculateTimeDifferenceInHHMMSS() {
+        Date date = new Date();
+        long differenceInMilliseconds = Math.abs(date.getTime() - startDate.getTime());
+        long seconds = (differenceInMilliseconds / 1000) % 60;
+        long minutes = (differenceInMilliseconds / (1000 * 60)) % 60;
+        long hours = differenceInMilliseconds / (1000 * 60 * 60);
+
         List<String> timeParts = new ArrayList<>();
         if (hours > 0) {
             timeParts.add(hours + "h");

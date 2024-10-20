@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Project Java</title>
+    <link th:href="@{/css/styles.css}" rel="stylesheet" />
+    <link th:href="@{/css/detalQuizTeacher.css}" rel="stylesheet" />
+    <link th:href="@{/css/header.css}" rel="stylesheet" />
+    <link th:href="@{/css/sidebar.css}" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+</head>
+
+<body>
+    <div th:replace="fragments/header :: header"></div>
+    <div class="title">
+        <div class="header_title">
+            <a th:href="@{../../classroom/{id}/homework/list(id=${classroom.id})}">Bài tập</a>
+            <i class="fa-solid fa-caret-right"></i>
+            <div th:text="${quiz.title}"></div>
+        </div>
+        <div class="options_title">
+            <a th:href="@{../../../{id}/detal/scoreboard/all(id=${quiz.id})}" data-type="scoreboard">Bảng
+                điểm</a>
+            <a th:href="@{../../../{id}/detal/overview(id=${quiz.id})}" data-type="overview">Tổng quan</a>
+            <!-- <a>Thông số</a> -->
+            <a th:href="@{../../../{id}/detal/topic(id=${quiz.id})}" data-type="topic">Đề bài</a>
+        </div>
+    </div>
+    <div class="container">
+        <div class="scoreboard">
+            <div class="scoreboard_header">
+                <a th:href="@{../../../{id}/detal/scoreboard/all(id=${quiz.id})}" data-type="all">Tất cả</a>
+                <a th:href="@{../../../{id}/detal/scoreboard/uncompleted(id=${quiz.id})}" data-type="uncompleted">Chưa
+                    làm</a>
+                <a th:href="@{../../../{id}/detal/scoreboard/isdoing(id=${quiz.id})}" data-type="isdoing">Đang làm</a>
+                <a th:href="@{../../../{id}/detal/scoreboard/completed(id=${quiz.id})}" data-type="completed">Đã nộp</a>
+            </div>
+            <div class="scoreboard_content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Họ và tên</th>
+                            <th scope="col">Đã làm</th>
+                            <th scope="col">Điểm</th>
+                            <th scope="col">Thời lượng</th>
+                            <th scope="col">Ngày nộp</th>
+                            <th scope="col">Thu hồi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="all">
+                        <tr th:if="${#lists.size(quizDetalDTOs) > 0}" th:each="quizDetalDTO :${quizDetalDTOs}">
+                            <td scope="row" th:text="${quizDetalDTO.user.username}">Chris</td>
+                            <td th:text="${quizDetalDTO.attempt}+'/'+${quiz.maxAttempts}">HTML tables</td>
+                            <td
+                                th:text="${quizDetalDTO.quizResult != null} ? ${quizDetalDTO.quizResult.completed==true? quizDetalDTO.quizResult.score :'Đang làm' } :'Chưa làm' ">
+                                HTML tables</td>
+                            <td
+                                th:text="${quizDetalDTO.quizResult != null} ? ${quizDetalDTO.quizResult.completed ? quizDetalDTO.quizResult.convertSecondsToTimeFormat() : quizDetalDTO.quizResult.calculateTimeDifferenceInHHMMSS} :'--' ">
+                                HTML tables</td>
+                            <td
+                                th:text="${quizDetalDTO.quizResult != null} ? ${quizDetalDTO.quizResult.getSubmitDateFormat()!=null ? quizDetalDTO.quizResult.getSubmitDateFormat() :'--'} :'--' ">
+                                HTML tables</td>
+
+                            <td>
+                                <a th:href="@{../../../{id}/recall(id=${quizStudentMap[quizDetalDTO.user.id].id})}" class="recall"
+                                onclick="return confirm('Bạn có muốn thu hồi bài làm này không')">
+                                    <i class="fa-solid fa-rotate-left"> </i>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.size(quizDetalDTOs) == 0}">
+                            <td colspan="6">Không có dữ liệu</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const currentPath = window.location.pathname.split('/');
+        document.querySelectorAll('.options_title a').forEach(item => {
+            const href = item.getAttribute('data-type')
+            if (currentPath[4] === href) {
+                item.classList.add('active');
+            }
+        });
+
+        document.querySelectorAll('.scoreboard_header a').forEach(item => {
+            const href = item.getAttribute('data-type')
+            if (currentPath[5] === href) {
+                item.classList.add('active');
+            }
+        });
+    });
+</script>
+
+</html>

@@ -30,7 +30,7 @@
     gap: 10px;
 }
 
-.options_title button {
+.options_title a {
     padding: 8px 10px;
     font-weight: bold;
     background-color: #ccc;
@@ -38,9 +38,10 @@
     outline: none;
     border-radius: 6px;
     font-size: 15px;
+    cursor: pointer;
 }
 
-.options_title button.active {
+.options_title a.active {
     color: white;
     background-color: #ff0033;
 }
@@ -66,7 +67,7 @@ h3{
     border-bottom: 1px solid #ccc;
 }
 
-.scoreboard_header button {
+.scoreboard_header a {
     padding: 10px;
     border-radius: 8px;
     font-size: 13px;
@@ -74,13 +75,25 @@ h3{
     background-color: #ccc;
 }
 
-.scoreboard_header button.active {
+.scoreboard_header a.active {
     color: white;
     background-color: #fa254f;
 }
 
 .scoreboard_content {
     width: 100%;
+    margin-top: 10px;
+}
+
+.recall{
+    outline: none;
+    font-size: 17px;
+    color: #aaa;
+    cursor: pointer;
+}
+
+.recall:hover{
+    color: #ff0033;
 }
 
 /*  */
